@@ -16,30 +16,36 @@ def token_required(f):
 
 @operacao_routesJohn.route('/api/JonhField/BuscarOperacoes', methods=['GET'])
 @token_required
-def BuscarOperacoes():
-    consulta = Opercao.BuscarOperacoes()
-    # Obtém os nomes das colunas
-    column_names = consulta.columns
-    # Monta o dicionário com os cabeçalhos das colunas e os valores correspondentes
-    consulta_data = []
-    for index, row in consulta.iterrows():
-        consulta_dict = {}
-        for column_name in column_names:
-            consulta_dict[column_name] = row[column_name]
-        consulta_data.append(consulta_dict)
-    return jsonify(consulta_data)
+def get_BuscarOperacoes():
+    try:
+        print('Minha Api 1')
+        busca = Opercao.Buscar_Operacoes()
+
+        # Verifica se 'busca' é um DataFrame
+        if not isinstance(busca, pd.DataFrame):
+            return jsonify({'error': 'Unexpected data format'}), 500
+
+        # Obtém os nomes das colunas
+        column_names = busca.columns.tolist()
+
+        # Monta o dicionário com os cabeçalhos das colunas e os valores correspondentes
+        consulta_data = busca.to_dict(orient='records')
+
+        return jsonify(consulta_data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @operacao_routesJohn.route('/api/JonhField/InserirOperacao', methods=['POST'])
 @token_required
 def InserirOperacao():
     data = request.get_json()
-    codOperacao = data.get('codOperacao')
     nomeOperacao = data.get('nomeOperacao')
     nomeFase = data.get('nomeFase')
-    Maq_Equipamento = data.get('Maq_Equipamento','-')
+    Maq_Equipamento = data.get('Maq_Equipamento')
+    nomeCategoria = data.get('nomeCategoria','-')
+    tempoPadrao = data.get('tempoPadrao','-')
 
-
-    consulta = Opercao.InserirOperacao(codOperacao, nomeOperacao, nomeFase, Maq_Equipamento )
+    consulta = Opercao.InserirOperacao(nomeOperacao, nomeFase, Maq_Equipamento, nomeCategoria, tempoPadrao )
     # Obtém os nomes das colunas
     column_names = consulta.columns
     # Monta o dicionário com os cabeçalhos das colunas e os valores correspondentes
@@ -58,10 +64,12 @@ def AtualizarOperacao():
     codOperacao = data.get('codOperacao')
     nomeOperacao = data.get('nomeOperacao')
     nomeFase = data.get('nomeFase')
-    Maq_Equipamento = data.get('Maq_Equipamento','-')
+    Maq_Equipamento = data.get('Maq_Equipamento')
+    nomeCategoria = data.get('nomeCategoria','-')
+    tempoPadrao = data.get('tempoPadrao','-')
 
 
-    consulta = Opercao.UpdateOperacao(codOperacao, nomeOperacao, nomeFase, Maq_Equipamento )
+    consulta = Opercao.UpdateOperacao(codOperacao, nomeOperacao, nomeFase, Maq_Equipamento, nomeCategoria, tempoPadrao)
     # Obtém os nomes das colunas
     column_names = consulta.columns
     # Monta o dicionário com os cabeçalhos das colunas e os valores correspondentes
