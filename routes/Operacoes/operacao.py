@@ -62,9 +62,9 @@ def InserirOperacao():
 def AtualizarOperacao():
     data = request.get_json()
     codOperacao = data.get('codOperacao')
-    nomeOperacao = data.get('nomeOperacao')
-    nomeFase = data.get('nomeFase')
-    Maq_Equipamento = data.get('Maq_Equipamento')
+    nomeOperacao = data.get('nomeOperacao','-')
+    nomeFase = data.get('nomeFase','-')
+    Maq_Equipamento = data.get('Maq_Equipamento','-')
     nomeCategoria = data.get('nomeCategoria','-')
     tempoPadrao = data.get('tempoPadrao','-')
 

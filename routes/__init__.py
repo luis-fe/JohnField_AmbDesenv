@@ -17,6 +17,7 @@ from .Dashboard.Dashboard import Dashboard_routesJohn
 from .Operacoes.operacao import operacao_routesJohn
 from .Ops.EstornarMovimentacao import EstornoOP_routesJohn
 from .Ops.cancelamentoOP import CancelamentoOP_routesJohn
+from .Operacoes.Operadores import operador_routesJohn
 
 # Registre as rotas nos blueprints
 routes_blueprint.register_blueprint(usuarios_routesJohn)
@@ -32,3 +33,4 @@ routes_blueprint.register_blueprint(Dashboard_routesJohn)
 routes_blueprint.register_blueprint(operacao_routesJohn)
 routes_blueprint.register_blueprint(EstornoOP_routesJohn)
 routes_blueprint.register_blueprint(CancelamentoOP_routesJohn)
+routes_blueprint.register_blueprint(operador_routesJohn)
