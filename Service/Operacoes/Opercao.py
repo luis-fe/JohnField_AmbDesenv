@@ -77,7 +77,7 @@ def InserirOperacao(nomeOperacao, nomeFase, Maq_Equipamento, nomeCategoria, temp
                     select max("codOperacao") as "codOperacao" from "Easy"."Operacao" o
                     """
                 ultimaOperacao = pd.read_sql(ultimaOperacao, conn)
-                ultimaOperacao = ultimaOperacao['codOperacao'][0]+1
+                ultimaOperacao = ultimaOperacao['codOperacao'][0]
 
 
                 inserirTempoPadrao = """
