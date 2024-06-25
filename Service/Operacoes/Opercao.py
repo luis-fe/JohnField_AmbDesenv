@@ -75,10 +75,9 @@ def InserirOperacao(nomeOperacao, nomeFase, Maq_Equipamento, nomeCategoria, temp
                     # 4.2 - Obtendo o ultimo codOperacao cadastrado
                 ultimaOperacao = """
                     select max("codOperacao") as "codOperacao" from "Easy"."Operacao" o
-                    group by "codOperacao" 
                     """
                 ultimaOperacao = pd.read_sql(ultimaOperacao, conn)
-                ultimaOperacao = ultimaOperacao['codOperacao'][0]
+                ultimaOperacao = ultimaOperacao['codOperacao'][0]+1
 
 
                 inserirTempoPadrao = """
