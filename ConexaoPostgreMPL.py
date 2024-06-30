@@ -22,8 +22,8 @@ def Funcao_Inserir (df_tags, tamanho,tabela, metodo):
 def conexaoJohn():
     db_name = "railway"
     db_user = "postgres"
-    db_password = "aAMjAETRXpvxBOtREBJzopyknQENGLqb"
+    db_password = "ssckCdSzGtlUyXkAylAqNVpaVJzKVRdh"
     db_host = "roundhouse.proxy.rlwy.net"
-    portbanco = "14088"
+    portbanco = "21990"
 
     return psycopg2.connect(dbname=db_name, user=db_user, password=db_password, host=db_host, port=portbanco)
