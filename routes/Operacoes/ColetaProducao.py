@@ -22,11 +22,11 @@ def token_required(f):
 def post_RegistrarProducao():
     data = request.get_json()
     nomeOperacao = data.get('nomeOperacao')
-    nomeOperador = data.get('nomeOperador')
+    codOperador = data.get('codOperador')
     nomeCategoria = data.get('nomeCategoria')
     qtdPecas = data.get('qtdPecas','-')
 
-    consulta = ColetaProducao.ColetaProducao(nomeOperador, nomeOperacao, nomeCategoria, qtdPecas )
+    consulta = ColetaProducao.ColetaProducao(codOperador, nomeOperacao, nomeCategoria, qtdPecas )
     # Obtém os nomes das colunas
     column_names = consulta.columns
     # Monta o dicionário com os cabeçalhos das colunas e os valores correspondentes
@@ -42,12 +42,12 @@ def post_RegistrarProducao():
 @token_required
 def get_RegistroPorPeriodo():
 
-        nomeOperador = request.args.get('nomeOperador', '')
+        codOperador = request.args.get('codOperador', '')
         dataInicio = request.args.get('dataInicio', '')
         dataFim = request.args.get('dataFim', '')
         print(dataInicio)
 
-        busca = ColetaProducao.ConsultaRegistroPorPeriodo(nomeOperador, dataInicio, dataFim)
+        busca = ColetaProducao.ConsultaRegistroPorPeriodo(codOperador, dataInicio, dataFim)
 
         # Verifica se 'busca' é um DataFrame
         if not isinstance(busca, pd.DataFrame):

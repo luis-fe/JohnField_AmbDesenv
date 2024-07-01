@@ -10,17 +10,15 @@ def obterHoraAtual():
     hora_str = agora.strftime('%Y-%m-%d %H:%M:%S')
     return hora_str
 
-def ColetaProducao(nomeOperador, nomeOperacao, nomeCategoria, qtdPecas):
+def ColetaProducao(codOperador, nomeOperacao, nomeCategoria, qtdPecas):
 
     operador = Operadores.ConsultarOperadores()
-    operador = operador[operador['nomeOperador']==nomeOperador].reset_index()
+    operador = operador[operador['codOperador']==codOperador].reset_index()
 
     if operador.empty:
         return pd.DataFrame([{'Stauts':False, 'Mensagem':'Operador nao encontrado'}])
 
     else:
-        codOperador = operador['codOperador'][0]
-
 
         operacoes =  Opercao.Buscar_Operacoes()
         operacoes = operacoes[operacoes['nomeOperacao']==nomeOperacao].reset_index()
@@ -37,24 +35,29 @@ def ColetaProducao(nomeOperador, nomeOperacao, nomeCategoria, qtdPecas):
                 return pd.DataFrame([{'Stauts': False, 'Mensagem': 'categoria nao encontrado'}])
 
             else:
-                print('teste')
                 categorias = categorias['codcategoria'][0]
                 Tempo = obterHoraAtual()
 
                 # Verifica se é o primeiro registro do dia desse colaborador
                 sql = """
-                select max("DataHora"::time) as "utimoTempo", count("DataHora")as registros from "Easy"."RegistroProducao" rp 
-                where "codOperador" = %s and "DataHora"::date = (now()::date)
+SELECT 
+        MAX("DataHora"::time) AS "utimoTempo", 
+    COUNT("DataHora") AS registros 
+FROM 
+    "Easy"."RegistroProducao" rp 
+WHERE 
+    "codOperador" = %s
+    AND (("DataHora"::timestamp AT TIME ZONE 'UTC') AT TIME ZONE 'America/Sao_Paulo')::date = (NOW() AT TIME ZONE 'America/Sao_Paulo')::date;
                 """
                 conn = ConexaoPostgreMPL.conexaoJohn()
-                sql = pd.read_sql(sql, conn, params=(int(codOperador),))
+                sql = pd.read_sql(sql, conn, params=(codOperador,))
 
                 sqlEscala = """
                 select "codOperador" , et.periodo1_inicio, periodo2_inicio  , periodo3_inicio, periodo1_fim ,periodo2_fim  from "Easy"."Operador" o 
                 inner join "Easy"."EscalaTrabalho" et on et."Escala" = o."Escala" 
                 where "codOperador" = %s
                 """
-                sqlEscala = pd.read_sql(sqlEscala, conn, params=(int(codOperador),))
+                sqlEscala = pd.read_sql(sqlEscala, conn, params=(codOperador,))
                 hora_esc1 = sqlEscala['periodo1_inicio'][0]
                 hora_esc1Fim = sqlEscala['periodo1_fim'][0]
 
@@ -63,9 +66,6 @@ def ColetaProducao(nomeOperador, nomeOperacao, nomeCategoria, qtdPecas):
                 hora_esc2Fim = sqlEscala['periodo2_fim'][0]
 
                 hora_esc3 = sqlEscala['periodo3_inicio'][0]
-                print('\nultimo tempo:::::::')
-                print(sql['utimoTempo'][0])
-
 
                 if sql['utimoTempo'][0] == None:
                     ultimotempo = hora_esc1 + ':00'
@@ -73,12 +73,13 @@ def ColetaProducao(nomeOperador, nomeOperacao, nomeCategoria, qtdPecas):
 
                 else:
                     ultimotempo = sql['utimoTempo'][0]
+                    ultimotempo = str(ultimotempo)
                     registro = sql['registros'][0] + 1
 
 
                 # Converte a string para um objeto datetime
                 datetime_obj = datetime.strptime(Tempo, "%Y-%m-%d %H:%M:%S")
-
+                ultimotempo = datetime.strptime(ultimotempo, "%H:%M:%S")
                 hora_esc1Fim = datetime.strptime(hora_esc1Fim +':00', "%H:%M:%S")
                 hora_esc2 = datetime.strptime(hora_esc2 +':00', "%H:%M:%S")
                 hora_esc2Fim = datetime.strptime(hora_esc2Fim +':00', "%H:%M:%S")
@@ -88,7 +89,7 @@ def ColetaProducao(nomeOperador, nomeOperacao, nomeCategoria, qtdPecas):
 
                 # Extrai o componente time do objeto datetime
                 HorarioFinal = datetime_obj.time()
-
+                ultimotempo = ultimotempo.time()
                 hora_esc1Fim = hora_esc1Fim.time()
                 hora_esc2 = hora_esc2.time()
                 hora_esc2Fim = hora_esc2Fim.time()
@@ -139,10 +140,10 @@ def ColetaProducao(nomeOperador, nomeOperacao, nomeCategoria, qtdPecas):
 
                 conn.close()
 
-                return pd.DataFrame([{'Mensagem': "Registro salvo com Sucesso!", "Status": True}])
+                return pd.DataFrame([{'Mensagem': "Registro salvo com Sucesso!", "Status": True, 'teste':f'{sql} , {codOperador}'}])
 
 
-def ConsultaRegistroPorPeriodo(nomeOperador, dataInicio, dataFim):
+def ConsultaRegistroPorPeriodo(codOperador, dataInicio, dataFim):
     sql = """
             SELECT * FROM "Easy"."ColetasProducao"
              WHERE
@@ -165,9 +166,9 @@ def ConsultaRegistroPorPeriodo(nomeOperador, dataInicio, dataFim):
     consulta['Data'] = pd.to_datetime(consulta['Data'], format='%a, %d %b %Y %H:%M:%S')
     consulta['Data'] = consulta['Data'].dt.strftime('%d/%m/%Y')
 
-    if nomeOperador != '':
-        consulta['nomeOperador'] =consulta[consulta['nomeOperador']==nomeOperador].reset_index()
-
+    if codOperador != '':
+        consulta = consulta[
+            consulta['codOperador'] == int(codOperador)].reset_index()
 
     # Agregação para contar OPs atrasadas por fase
     Agrupamento = consulta.groupby(['nomeOperacao']).agg({'tempoTotal(min)':'sum','qtdPcs':'sum','Meta(pcs/hr)':'first'}
@@ -183,9 +184,3 @@ def ConsultaRegistroPorPeriodo(nomeOperador, dataInicio, dataFim):
         '2 -DetalhamentoEmAberto': consulta.to_dict(orient='records')}
 
     return pd.DataFrame([dados])
-
-
-
-
-
-
