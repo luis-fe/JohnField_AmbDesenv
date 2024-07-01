@@ -156,7 +156,7 @@ def ConsultaRegistroPorPeriodo(codOperador, dataInicio, dataFim):
     conn.close()
 
     consulta['tempoTotal(min)'] = consulta['tempoTotal(min)'].round(2)
-    consulta['Realizado pcs/Hora'] = 60/(consulta['qtdPcs']/consulta['tempoTotal(min)'])
+    consulta['Realizado pcs/Hora'] = 60*(consulta['qtdPcs']/consulta['tempoTotal(min)'])
     consulta['Realizado pcs/Hora'] = consulta['Realizado pcs/Hora'].round(0)
     consulta['Realizado (Efi%)'] = (consulta['Realizado pcs/Hora']/consulta['Meta(pcs/hr)'])*100
     consulta['Realizado (Efi%)'] = consulta['Realizado (Efi%)'].round(2)
@@ -174,7 +174,7 @@ def ConsultaRegistroPorPeriodo(codOperador, dataInicio, dataFim):
     Agrupamento = consulta.groupby(['nomeOperacao']).agg({'tempoTotal(min)':'sum','qtdPcs':'sum','Meta(pcs/hr)':'first'}
     ).reset_index()
 
-    Agrupamento['Efi'] = 60/(Agrupamento['qtdPcs']/Agrupamento['tempoTotal(min)'])
+    Agrupamento['Efi'] = 60*(Agrupamento['qtdPcs']/Agrupamento['tempoTotal(min)'])
     Agrupamento['Efi'] = Agrupamento['Efi'].round(0)
     Agrupamento['Efi'] = (Agrupamento['Efi']/Agrupamento['Meta(pcs/hr)'])*100
     Media = Agrupamento['Efi'].mean()
