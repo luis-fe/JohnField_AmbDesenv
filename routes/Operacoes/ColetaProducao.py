@@ -26,7 +26,7 @@ def post_RegistrarProducao():
     nomeCategoria = data.get('nomeCategoria')
     qtdPecas = data.get('qtdPecas','-')
 
-    consulta = ColetaProducao.ColetaProducao(codOperador, nomeOperacao, nomeCategoria, qtdPecas )
+    consulta = ColetaProducao.ColetaProducao(codOperador, nomeOperacao, qtdPecas )
     # Obtém os nomes das colunas
     column_names = consulta.columns
     # Monta o dicionário com os cabeçalhos das colunas e os valores correspondentes

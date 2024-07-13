@@ -10,10 +10,11 @@ def obterHoraAtual():
     hora_str = agora.strftime('%Y-%m-%d %H:%M:%S')
     return hora_str
 
-def ColetaProducao(codOperador, nomeOperacao, nomeCategoria, qtdPecas):
+def ColetaProducao(codOperador, nomeOperacao, qtdPecas):
 
     operador = Operadores.ConsultarOperadores()
-    operador = operador[operador['codOperador']==codOperador].reset_index()
+    print(operador)
+    operador = operador[operador['codOperador']==int(codOperador)].reset_index()
 
     if operador.empty:
         return pd.DataFrame([{'Stauts':False, 'Mensagem':'Operador nao encontrado'}])
@@ -28,18 +29,18 @@ def ColetaProducao(codOperador, nomeOperacao, nomeCategoria, qtdPecas):
 
         else:
             operacoes = operacoes['codOperacao'][0]
-            categorias = CategiaJohnField.BuscarCategorias()
-            categorias = categorias[categorias['nomeCategoria'] == nomeCategoria].reset_index()
+           # categorias = CategiaJohnField.BuscarCategorias()
+           # categorias = categorias[categorias['nomeCategoria'] == nomeCategoria].reset_index()
 
-            if categorias.empty:
-                return pd.DataFrame([{'Stauts': False, 'Mensagem': 'categoria nao encontrado'}])
+            #if categorias.empty:
+             #   return pd.DataFrame([{'Stauts': False, 'Mensagem': 'categoria nao encontrado'}])
 
-            else:
-                categorias = categorias['codcategoria'][0]
-                Tempo = obterHoraAtual()
+            #else:
+             #   categorias = categorias['codcategoria'][0]
+            #  Tempo = obterHoraAtual()
 
                 # Verifica se é o primeiro registro do dia desse colaborador
-                sql = """
+            sql = """
 SELECT 
         MAX("DataHora"::time) AS "utimoTempo", 
     COUNT("DataHora") AS registros 
@@ -49,57 +50,57 @@ WHERE
     "codOperador" = %s
     AND (("DataHora"::timestamp AT TIME ZONE 'UTC') AT TIME ZONE 'America/Sao_Paulo')::date = (NOW() AT TIME ZONE 'America/Sao_Paulo')::date;
                 """
-                conn = ConexaoPostgreMPL.conexaoJohn()
-                sql = pd.read_sql(sql, conn, params=(codOperador,))
+            conn = ConexaoPostgreMPL.conexaoJohn()
+            sql = pd.read_sql(sql, conn, params=(codOperador,))
 
-                sqlEscala = """
+            sqlEscala = """
                 select "codOperador" , et.periodo1_inicio, periodo2_inicio  , periodo3_inicio, periodo1_fim ,periodo2_fim  from "Easy"."Operador" o 
                 inner join "Easy"."EscalaTrabalho" et on et."Escala" = o."Escala" 
                 where "codOperador" = %s
                 """
-                sqlEscala = pd.read_sql(sqlEscala, conn, params=(codOperador,))
-                hora_esc1 = sqlEscala['periodo1_inicio'][0]
-                hora_esc1Fim = sqlEscala['periodo1_fim'][0]
+            sqlEscala = pd.read_sql(sqlEscala, conn, params=(codOperador,))
+            hora_esc1 = sqlEscala['periodo1_inicio'][0]
+            hora_esc1Fim = sqlEscala['periodo1_fim'][0]
 
 
-                hora_esc2 = sqlEscala['periodo2_inicio'][0]
-                hora_esc2Fim = sqlEscala['periodo2_fim'][0]
+            hora_esc2 = sqlEscala['periodo2_inicio'][0]
+            hora_esc2Fim = sqlEscala['periodo2_fim'][0]
 
-                hora_esc3 = sqlEscala['periodo3_inicio'][0]
+            hora_esc3 = sqlEscala['periodo3_inicio'][0]
 
-                if sql['utimoTempo'][0] == None:
+            if sql['utimoTempo'][0] == None:
                     ultimotempo = hora_esc1 + ':00'
                     registro = sql['registros'][0] + 1
 
-                else:
+            else:
                     ultimotempo = sql['utimoTempo'][0]
                     ultimotempo = str(ultimotempo)
                     registro = sql['registros'][0] + 1
 
+            Tempo = obterHoraAtual()
+            # Converte a string para um objeto datetime
+            datetime_obj = datetime.strptime(Tempo, "%Y-%m-%d %H:%M:%S")
+            ultimotempo = datetime.strptime(ultimotempo, "%H:%M:%S")
+            hora_esc1Fim = datetime.strptime(hora_esc1Fim +':00', "%H:%M:%S")
+            hora_esc2 = datetime.strptime(hora_esc2 +':00', "%H:%M:%S")
+            hora_esc2Fim = datetime.strptime(hora_esc2Fim +':00', "%H:%M:%S")
 
-                # Converte a string para um objeto datetime
-                datetime_obj = datetime.strptime(Tempo, "%Y-%m-%d %H:%M:%S")
-                ultimotempo = datetime.strptime(ultimotempo, "%H:%M:%S")
-                hora_esc1Fim = datetime.strptime(hora_esc1Fim +':00', "%H:%M:%S")
-                hora_esc2 = datetime.strptime(hora_esc2 +':00', "%H:%M:%S")
-                hora_esc2Fim = datetime.strptime(hora_esc2Fim +':00', "%H:%M:%S")
-
-                hora_esc3 = datetime.strptime(hora_esc3 +':00', "%H:%M:%S")
+            hora_esc3 = datetime.strptime(hora_esc3 +':00', "%H:%M:%S")
 
 
-                # Extrai o componente time do objeto datetime
-                HorarioFinal = datetime_obj.time()
-                ultimotempo = ultimotempo.time()
-                hora_esc1Fim = hora_esc1Fim.time()
-                hora_esc2 = hora_esc2.time()
-                hora_esc2Fim = hora_esc2Fim.time()
-                hora_esc3 = hora_esc3.time()
+            # Extrai o componente time do objeto datetime
+            HorarioFinal = datetime_obj.time()
+            ultimotempo = ultimotempo.time()
+            hora_esc1Fim = hora_esc1Fim.time()
+            hora_esc2 = hora_esc2.time()
+            hora_esc2Fim = hora_esc2Fim.time()
+            hora_esc3 = hora_esc3.time()
 
-                intervalo = 0
-                if HorarioFinal < hora_esc2:
+            intervalo = 0
+            if HorarioFinal < hora_esc2:
                     intervalo = 0 + intervalo
 
-                if HorarioFinal > hora_esc2 and ultimotempo < hora_esc2:
+            if HorarioFinal > hora_esc2 and ultimotempo < hora_esc2:
                     datetime1 = datetime.combine(datetime.today(), hora_esc1Fim)
                     datetime2 = datetime.combine(datetime.today(), hora_esc2)
 
@@ -111,7 +112,7 @@ WHERE
                     difference_in_minutes = time_difference.total_seconds() / 60
                     intervalo = intervalo + difference_in_minutes
 
-                if HorarioFinal > hora_esc3 and ultimotempo < hora_esc3:
+            if HorarioFinal > hora_esc3 and ultimotempo < hora_esc3:
 
                     datetime1 = datetime.combine(datetime.today(), hora_esc2Fim)
                     datetime2 = datetime.combine(datetime.today(), hora_esc3)
@@ -124,23 +125,23 @@ WHERE
                     difference_in_minutes = time_difference.total_seconds() / 60
                     intervalo = intervalo + difference_in_minutes
 
-                inserir = """
-                                    insert into "Easy"."RegistroProducao" ("codOperador", "codOperacao", "codCategoria", 
+            inserir = """
+                                    insert into "Easy"."RegistroProducao" ("codOperador", "codOperacao", 
                                     "qtdPcs", "DataHora", "HrInico", "HrFim", "desInt", "sequencia")
-                                    values ( %s, %s , %s ,%s ,%s , %s ,%s ,%s , %s )
+                                    values ( %s, %s , %s ,%s ,%s , %s ,%s ,%s  )
                                     """
-                HorarioFinal = HorarioFinal.strftime("%H:%M:%S")
+            HorarioFinal = HorarioFinal.strftime("%H:%M:%S")
 
-                conn = ConexaoPostgreMPL.conexaoJohn()
-                cursor = conn.cursor()
-                cursor.execute(inserir, (
-                    int(codOperador), int(operacoes), int(categorias), qtdPecas, Tempo, ultimotempo, HorarioFinal, str(intervalo), str(registro)))
-                conn.commit()
-                cursor.close()
+            conn = ConexaoPostgreMPL.conexaoJohn()
+            cursor = conn.cursor()
+            cursor.execute(inserir, (
+                    int(codOperador), int(operacoes), qtdPecas, Tempo, ultimotempo, HorarioFinal, str(intervalo), str(registro)))
+            conn.commit()
+            cursor.close()
 
-                conn.close()
+            conn.close()
 
-                return pd.DataFrame([{'Mensagem': "Registro salvo com Sucesso!", "Status": True, 'teste':f'{sql} , {codOperador}'}])
+            return pd.DataFrame([{'Mensagem': "Registro salvo com Sucesso!", "Status": True, 'teste':f'{sql} , {codOperador}'}])
 
 
 def ConsultaRegistroPorPeriodo(codOperador, dataInicio, dataFim):
