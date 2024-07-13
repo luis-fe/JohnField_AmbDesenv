@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, send_from_directory
 from functools import wraps
-from Service.Operacoes import Opercao, imprimirOperacao
+from Service.Operacoes import Opercao, imprimirOperacao, imprimirOperador
 import pandas as pd
 operacao_routesJohn = Blueprint('operacaoJohn', __name__) # Esse é o nome atribuido para o conjunto de rotas envolvendo usuario
 
@@ -92,3 +92,15 @@ def GerarOperacoes():
         caminho_pdf = imprimirOperacao.criar_formulario('formulario2.pdf', nomeOperacao)
         # Retorna o arquivo PDF
         return send_from_directory('.','formulario2.pdf')
+
+
+@operacao_routesJohn.route('/api/JonhField/GerarOperadorPDF', methods=['POST'])
+@token_required
+def GerarOperador():
+        data = request.get_json()
+        nomeOperador = data.get('nomeOperador')
+
+
+        caminho_pdf = imprimirOperador.criar_formulario('formulario3.pdf', nomeOperador)
+        # Retorna o arquivo PDF
+        return send_from_directory('.','formulario3.pdf')
