@@ -60,12 +60,12 @@ def get_ConsultaEscalaTrabalho():
 @token_required
 def getNovoOperador():
     data = request.get_json()
-    codOperador = data.get('codOperador')
+    codOperador = data.get('codOperador','-')
     nomeOperador = data.get('nomeOperador')
     Escala = data.get('Escala')
 
 
-    consulta = Operadores.InserirOperador(codOperador , nomeOperador, Escala )
+    consulta = Operadores.InserirOperador(nomeOperador, Escala )
     # Obtém os nomes das colunas
     column_names = consulta.columns
     # Monta o dicionário com os cabeçalhos das colunas e os valores correspondentes

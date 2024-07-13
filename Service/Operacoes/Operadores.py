@@ -12,9 +12,10 @@ def ConsultarOperadores():
 
     return consulta
 
-def InserirOperador(codOperador, nomeOperador, EscalaTrabalho):
+def InserirOperador(nomeOperador, EscalaTrabalho):
     # Verificando se existe o operador
     verifica = ConsultarOperadores()
+    codOperador = verifica['codOperador'].max() + 1
     verifica1 = verifica[verifica['codOperador']== codOperador].reset_index()
 
     if not verifica1.empty:
