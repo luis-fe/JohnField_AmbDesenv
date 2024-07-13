@@ -22,8 +22,13 @@ def RelatorioEncerramento(dataInicio, dataFinal):
         consulta = pd.merge(consulta,consulta2,on='idOP',how='left')
 
     consulta['dataencerramento'] = consulta['dataencerramento'].apply(converterData)
-    return consulta
 
+    qtd = consulta['']
+    dados = {
+        '0- Qtde Peças': f'{Media}% ',
+        '2 -Detalhamento': consulta.to_dict(orient='records')}
+
+    return pd.DataFrame([dados])
 def converterData(date_str):
     year = date_str[:4]
     month = date_str[5:7]

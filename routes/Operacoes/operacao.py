@@ -42,7 +42,7 @@ def InserirOperacao():
     nomeOperacao = data.get('nomeOperacao')
     nomeFase = data.get('nomeFase')
     Maq_Equipamento = data.get('Maq_Equipamento')
-    nomeCategoria = data.get('nomeCategoria','-')
+    nomeCategoria = data.get('nomeCategoria','CAMISA ML')
     tempoPadrao = data.get('tempoPadrao','-')
 
     consulta = Opercao.InserirOperacao(nomeOperacao, nomeFase, Maq_Equipamento, nomeCategoria, tempoPadrao )
@@ -65,7 +65,7 @@ def AtualizarOperacao():
     nomeOperacao = data.get('nomeOperacao','-')
     nomeFase = data.get('nomeFase','-')
     Maq_Equipamento = data.get('Maq_Equipamento','-')
-    nomeCategoria = data.get('nomeCategoria','-')
+    nomeCategoria = data.get('nomeCategoria','CAMISA ML')
     tempoPadrao = data.get('tempoPadrao','-')
 
 
@@ -87,9 +87,8 @@ def AtualizarOperacao():
 def GerarOperacoes():
         data = request.get_json()
         nomeOperacao = data.get('nomeOperacao')
-        nomeCategoria = data.get('nomeCategoria', '-')
 
 
-        caminho_pdf = imprimirOperacao.criar_formulario('formulario2.pdf', nomeOperacao , nomeCategoria)
+        caminho_pdf = imprimirOperacao.criar_formulario('formulario2.pdf', nomeOperacao)
         # Retorna o arquivo PDF
         return send_from_directory('.','formulario2.pdf')

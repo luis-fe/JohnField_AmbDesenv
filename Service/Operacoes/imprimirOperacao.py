@@ -8,7 +8,7 @@ import qrcode
 
 import ConexaoPostgreMPL
 
-def criar_formulario(saida_pdf, nomeOperacao, nomeCategoria):
+def criar_formulario(saida_pdf, nomeOperacao):
     # Configurações das etiquetas e colunas
     label_width = 21.0 * cm
     label_height = 29.7 * cm
@@ -46,7 +46,7 @@ def criar_formulario(saida_pdf, nomeOperacao, nomeCategoria):
     pagina = 0
     pg = 1
 
-    for i, (operacao, categoria) in enumerate(zip(nomeOperacao, nomeCategoria), start=1):
+    for i, (operacao, categoria) in enumerate(zip(nomeOperacao, nomeOperacao), start=1):
         iPagina = i - pagina
         with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as temp_qr_file:
             qr_filename = temp_qr_file.name
@@ -57,11 +57,10 @@ def criar_formulario(saida_pdf, nomeOperacao, nomeCategoria):
                 c.drawString(inicio * cm, 24.2 * cm, title)
 
                 # Categoria da operação
-                Label(c, categoria, inicio, 23.7)
 
                 # Gerar QR code
                 qr = qrcode.QRCode(version=1, box_size=int(1.72 * cm), border=0)
-                qr.add_data(str(operacao) + ' || ' + str(categoria))
+                qr.add_data(str(operacao))
                 qr.make(fit=True)
                 qr_img = qr.make_image(fill_color="black", back_color="white")
                 qr_img.save(qr_filename)
@@ -74,11 +73,10 @@ def criar_formulario(saida_pdf, nomeOperacao, nomeCategoria):
                 c.drawString(inicio2 * cm, (24.2 - 5.5) * cm, title)
 
                 # Categoria da operação
-                Label(c, categoria, inicio2, 23.7 - 5.5)
 
                 # Gerar QR code
                 qr = qrcode.QRCode(version=1, box_size=int(1.72 * cm), border=0)
-                qr.add_data(str(operacao) + ' || ' + str(categoria))
+                qr.add_data(str(operacao))
                 qr.make(fit=True)
                 qr_img = qr.make_image(fill_color="black", back_color="white")
                 qr_img.save(qr_filename)
@@ -92,11 +90,10 @@ def criar_formulario(saida_pdf, nomeOperacao, nomeCategoria):
                 c.drawString(inicio3 * cm, (24.2 - (5.5 * 2)) * cm, title)
 
                 # Categoria da operação
-                Label(c, categoria, inicio3, 23.7 - (5.5 * 2))
 
                 # Gerar QR code
                 qr = qrcode.QRCode(version=1, box_size=int(1.72 * cm), border=0)
-                qr.add_data(str(operacao) + ' || ' + str(categoria))
+                qr.add_data(str(operacao))
                 qr.make(fit=True)
                 qr_img = qr.make_image(fill_color="black", back_color="white")
                 qr_img.save(qr_filename)
@@ -110,11 +107,10 @@ def criar_formulario(saida_pdf, nomeOperacao, nomeCategoria):
                 c.drawString(inicio4 * cm, (24.2 - (5.5 * 3)) * cm, title)
 
                 # Categoria da operação
-                Label(c, categoria, inicio4, 23.7 - (5.5 * 3))
 
                 # Gerar QR code
                 qr = qrcode.QRCode(version=1, box_size=int(1.72 * cm), border=0)
-                qr.add_data(str(operacao) + ' || ' + str(categoria))
+                qr.add_data(str(operacao))
                 qr.make(fit=True)
                 qr_img = qr.make_image(fill_color="black", back_color="white")
                 qr_img.save(qr_filename)
@@ -128,11 +124,10 @@ def criar_formulario(saida_pdf, nomeOperacao, nomeCategoria):
                 c.drawString(inicio5 * cm, (24.2 - (5.5 * 4)) * cm, title)
 
                 # Categoria da operação
-                Label(c, categoria, inicio5, 23.7 - (5.5 * 4))
 
                 # Gerar QR code
                 qr = qrcode.QRCode(version=1, box_size=int(1.72 * cm), border=0)
-                qr.add_data(str(operacao) + ' || ' + str(categoria))
+                qr.add_data(str(operacao))
                 qr.make(fit=True)
                 qr_img = qr.make_image(fill_color="black", back_color="white")
                 qr_img.save(qr_filename)
@@ -175,11 +170,10 @@ def criar_formulario(saida_pdf, nomeOperacao, nomeCategoria):
                 c.drawString(inicio * cm, 24.2 * cm, title)
 
                 # Categoria da operação
-                Label(c, categoria, inicio, 23.7)
 
                 # Gerar QR code
                 qr = qrcode.QRCode(version=1, box_size=int(1.72 * cm), border=0)
-                qr.add_data(str(operacao) + ' || ' + str(categoria))
+                qr.add_data(str(operacao))
                 qr.make(fit=True)
                 qr_img = qr.make_image(fill_color="black", back_color="white")
                 qr_img.save(qr_filename)
