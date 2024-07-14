@@ -240,3 +240,62 @@ def RankingOperadoresEficiencia(dataInico, dataFinal):
             '1-Detalhamento': consulta2.to_dict(orient='records')}
 
         return pd.DataFrame([dados])
+
+
+def RankingOperacoesEficiencia(dataInico, dataFinal):
+
+    sql = """
+    select
+    "Codigo Registro",
+	"Data" ,
+	"Hr Inicio" ,"Hr Final" ,
+	"codOperador" ,
+	"nomeOperador","nomeOperacao" ,
+	"paradas min",
+	"tempoTotal(min)",
+	"qtdPcs", "Meta(pcs/hr)" 
+    from
+	"Easy"."ColetasProducao" cp
+    where "Data" >= %s and "Data" <= %s
+    order by "Data" ,  "codOperador", "Codigo Registro"
+    """
+
+
+    conn = ConexaoPostgreMPL.conexaoJohn()
+    produtividade =pd.read_sql(sql,conn,params=(dataInico, dataFinal))
+
+    if produtividade.empty:
+        return pd.DataFrame([])
+    else:
+        produtividade['tempoTotal(min)Acum'] = produtividade.groupby(['Data','nomeOperacao'])['tempoTotal(min)'].cumsum()
+        produtividade['tempo Previsto'] = round(produtividade['Meta(pcs/hr)']/60,2) * produtividade['qtdPcs']
+        produtividade['tempo PrevistoAcum'] = produtividade.groupby(['Data','nomeOperacao'])['tempo Previsto'].cumsum()
+        produtividade['tempo PrevistoAcum'] = produtividade['tempo PrevistoAcum'].round(2)
+        produtividade['qtdPcsAcum'] = produtividade.groupby(['Data','nomeOperacao'])['qtdPcs'].cumsum()
+
+        consulta = produtividade.groupby(['Data','nomeOperacao','codOperador']).agg({
+            "Codigo Registro": 'max'}).reset_index()
+
+        consulta = pd.merge(consulta,produtividade,on=['Data','codOperador','Codigo Registro','nomeOperacao'])
+        consulta['Eficiencia'] = round(consulta['tempoTotal(min)Acum']/consulta['tempo PrevistoAcum'],3)*100
+        consulta['Eficiencia'] = consulta['Eficiencia'].round(1)
+
+        consulta2 = consulta.groupby('nomeOperacao').agg({
+        'qtdPcsAcum':'sum',
+        'tempo PrevistoAcum':'sum',
+        'tempoTotal(min)Acum':'sum'
+        }).reset_index()
+        consulta2['tempoTotal(min)Acum'] = consulta2['tempoTotal(min)Acum'].round(4)
+        consulta2['Eficiencia'] = round(consulta2['tempoTotal(min)Acum']/consulta2['tempo PrevistoAcum'],3)*100
+        consulta2['Eficiencia'] = consulta2['Eficiencia'].round(1)
+
+        consulta2 = consulta2.sort_values(by=['Eficiencia'], ascending=False)
+        consulta2['Eficiencia'] = consulta2['Eficiencia'].astype(str)+'%'
+
+        efiMedia = round(consulta2['tempoTotal(min)Acum'].sum() /consulta2['tempo PrevistoAcum'].sum(),3)*100
+
+        dados = {
+            '0-Eficiencia Média Periodo': f'{efiMedia}%',
+            '1-Detalhamento': consulta2.to_dict(orient='records')}
+
+        return pd.DataFrame([dados])
