@@ -79,8 +79,9 @@ def OPsAbertoPorCliente(nomeCliente = ''):
 
 def OpsAbertoPorFase(nomeFase = ''):
     consulta = """
-      select * from "Easy"."DetalhaOP_Abertas" doa 
-      """
+select * from "Easy"."DetalhaOP_Abertas" doa 
+order by "codFase"      
+"""
 
     quantidade = """
         select "idOP" , sum(quantidade) as quantidade  from "Easy"."OP_Cores_Tam" oct 
@@ -131,7 +132,11 @@ def OpsAbertoPorFase(nomeFase = ''):
 
 
     DistribuicaoClientes = consulta.groupby(['FaseAtual']).agg(
-        quantidadeOP=('codCliente', 'size'), quantidadePc=('quantidade', 'sum')).reset_index()
+        quantidadeOP=('codCliente', 'size'),
+        quantidadePc=('quantidade', 'sum'),
+        codFase=('codFase','first')
+    ).reset_index()
+    DistribuicaoClientes = DistribuicaoClientes.sort_values(by=['codFase'], ascending=True)  # escolher como deseja classificar
 
     DistribuicaoClientes['quantidadeOP%'] = round((DistribuicaoClientes['quantidadeOP'] / int(OPAberto)) * 100)
     DistribuicaoClientes['quantidadePc%'] = round((DistribuicaoClientes['quantidadePc'] / float(pcsAberto1)) * 100)
@@ -144,6 +149,7 @@ def OpsAbertoPorFase(nomeFase = ''):
     OPAbertoAtr = round(OPAbertoAtr)
     OPAbertoAtr = '{:,.0f}'.format(OPAbertoAtr)
     OPAbertoAtr = OPAbertoAtr.replace(',', '.')
+
     if nomeFase !='':
         consulta = consulta[consulta['FaseAtual']==nomeFase]
         OPAberto = consulta['codOP'].count()
@@ -173,3 +179,64 @@ def OpsAbertoPorFase(nomeFase = ''):
         '4 -DetalhamentoEmAberto': consulta.to_dict(orient='records')}
 
     return pd.DataFrame([dados])
+
+
+
+def RankingOperadoresEficiencia(dataInico, dataFinal):
+
+    sql = """
+    select
+    "Codigo Registro",
+	"Data" ,
+	"Hr Inicio" ,"Hr Final" ,
+	"codOperador" ,
+	"nomeOperador",
+	"paradas min",
+	"tempoTotal(min)",
+	"qtdPcs", "Meta(pcs/hr)" 
+    from
+	"Easy"."ColetasProducao" cp
+    where "Data" >= %s and "Data" <= %s
+    order by "Data" ,  "codOperador", "Codigo Registro"
+    """
+
+
+    conn = ConexaoPostgreMPL.conexaoJohn()
+    produtividade =pd.read_sql(sql,conn,params=(dataInico, dataFinal))
+
+    if produtividade.empty:
+        return pd.DataFrame([])
+    else:
+        produtividade['tempoTotal(min)Acum'] = produtividade.groupby(['Data','codOperador'])['tempoTotal(min)'].cumsum()
+        produtividade['tempo Previsto'] = round(produtividade['Meta(pcs/hr)']/60,2) * produtividade['qtdPcs']
+        produtividade['tempo PrevistoAcum'] = produtividade.groupby(['Data','codOperador'])['tempo Previsto'].cumsum()
+        produtividade['tempo PrevistoAcum'] = produtividade['tempo PrevistoAcum'].round(2)
+        produtividade['qtdPcsAcum'] = produtividade.groupby(['Data','codOperador'])['qtdPcs'].cumsum()
+
+        consulta = produtividade.groupby(['Data','codOperador']).agg({
+            "Codigo Registro": 'max'}).reset_index()
+
+        consulta = pd.merge(consulta,produtividade,on=['Data','codOperador','Codigo Registro'])
+        consulta['Eficiencia'] = round(consulta['tempoTotal(min)Acum']/consulta['tempo PrevistoAcum'],3)*100
+        consulta['Eficiencia'] = consulta['Eficiencia'].round(1)
+
+        consulta2 = consulta.groupby('codOperador').agg({
+        'nomeOperador':'first',
+        'qtdPcsAcum':'sum',
+        'tempo PrevistoAcum':'sum',
+        'tempoTotal(min)Acum':'sum'
+        }).reset_index()
+        consulta2['tempoTotal(min)Acum'] = consulta2['tempoTotal(min)Acum'].round(4)
+        consulta2['Eficiencia'] = round(consulta2['tempoTotal(min)Acum']/consulta2['tempo PrevistoAcum'],3)*100
+        consulta2['Eficiencia'] = consulta2['Eficiencia'].round(1)
+
+        consulta2 = consulta2.sort_values(by=['Eficiencia'], ascending=False)
+        consulta2['Eficiencia'] = consulta2['Eficiencia'].astype(str)+'%'
+
+        efiMedia = round(consulta2['tempoTotal(min)Acum'].sum() /consulta2['tempo PrevistoAcum'].sum(),3)*100
+
+        dados = {
+            '0-Eficiencia Média Periodo': f'{efiMedia}%',
+            '1-Detalhamento': consulta2.to_dict(orient='records')}
+
+        return pd.DataFrame([dados])
