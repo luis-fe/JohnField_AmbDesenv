@@ -185,3 +185,52 @@ def ConsultaRegistroPorPeriodo(codOperador, dataInicio, dataFim):
         '2 -DetalhamentoEmAberto': consulta.to_dict(orient='records')}
 
     return pd.DataFrame([dados])
+
+
+def ApontamentoParadas(codOperador, Data, InicioAusencia, FimAusencia, motivo, aplicaDesconto):
+
+    VerificaOpeador = Operadores.ConsultarOperadores()
+    VerificaOpeador = VerificaOpeador[VerificaOpeador['codOperador']==codOperador].reset_index()
+
+    if VerificaOpeador.empty:
+        return pd.DataFrame([{'Status':False, 'Mensagem':'Operador nao encontrado !'}])
+
+    else:
+        insert = """
+        insert into "Easy"."Paradas"  ("codOperador", "Data", "InicioAusencia", "FimAusencia", "motivo", "aplicaDesconto")
+        values ( %s, %s, %s, %s, %s, %s ) 
+        """
+
+        InicioAusenciaDate = datetime.strptime(InicioAusencia, "%H:%M")
+        FimAusenciaDate = datetime.strptime(FimAusencia, "%H:%M")
+
+        HorarioIni = InicioAusenciaDate.time()
+        HorarioFim = FimAusenciaDate.time()
+
+        if HorarioIni > HorarioFim:
+            return pd.DataFrame([{'Status': False, 'Mensagem': 'Horario de Inicio é maior que o horario Final !'}])
+        else:
+            conn = ConexaoPostgreMPL.conexaoJohn()
+            cursor = conn.cursor()
+            cursor.execute(insert,(codOperador, Data, InicioAusencia, FimAusencia, motivo, aplicaDesconto))
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return pd.DataFrame([{'Status': True, 'Mensagem': 'Registro de Parada salvo com sucesso!'}])
+
+
+
+def ConsultaPardas(DataInicio, DataFinal):
+    sql = """
+select p.*, o."nomeOperador"  from "Easy"."Paradas" p 
+inner join "Easy"."Operador" o  on o."codOperador" = p."codOperador"  
+where p."Data" >= %s and p."Data" <= %s
+    """
+    conn = ConexaoPostgreMPL.conexaoJohn()
+    consulta = pd.read_sql(sql,conn,params=(DataInicio,DataFinal))
+    conn.close()
+    consulta['Data'] = pd.to_datetime(consulta['Data'], format='%a, %d %b %Y %H:%M:%S %Z')
+    consulta['Data'] = consulta['Data'].dt.strftime('%d/%m/%Y')
+
+
+    return consulta
