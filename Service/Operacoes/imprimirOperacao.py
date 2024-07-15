@@ -120,6 +120,7 @@ def criar_formulario(saida_pdf, nomeOperacao):
                 i2 = i - 8
                 c.drawImage(qr_filename, (inicio3 + (0.20 * i2)) * cm, (25.2 - (5.5 * 2)) * cm, width=2.7 * cm, height=2.70 * cm)
                 inicio3 += 5.3
+
             elif iPagina < 17:
                 # Título da operação
                 c.setFont("Helvetica-Bold", 12)
@@ -130,8 +131,8 @@ def criar_formulario(saida_pdf, nomeOperacao):
                 else:
                     title = operacao[:17]
                     title2 = operacao[17:]
-                c.drawString(inicio3 * cm, (24.2 - (5.5 * 3)) * cm, title)
-                c.drawString(inicio3 * cm, (23.7 - (5.5 * 3)) * cm, title2)
+                c.drawString(inicio4 * cm, (24.2 - (5.5 * 3)) * cm, title)
+                c.drawString(inicio4 * cm, (23.7 - (5.5 * 3)) * cm, title2)
 
                 # Categoria da operação
 
@@ -154,8 +155,8 @@ def criar_formulario(saida_pdf, nomeOperacao):
                 else:
                     title = operacao[:17]
                     title2 = operacao[17:]
-                c.drawString(inicio3 * cm, (24.2 - (5.5 * 4)) * cm, title)
-                c.drawString(inicio3 * cm, (23.7 - (5.5 * 4)) * cm, title2)
+                c.drawString(inicio5 * cm, (24.2 - (5.5 * 4)) * cm, title)
+                c.drawString(inicio5 * cm, (23.7 - (5.5 * 4)) * cm, title2)
                 # Categoria da operação
 
                 # Gerar QR code
@@ -181,6 +182,7 @@ def criar_formulario(saida_pdf, nomeOperacao):
                 c.setFont("Helvetica-Bold", 21)
                 title = 'FORMULÁRIO DE OPERACÕES'
                 c.drawString(5.0 * cm, 28.7 * cm, title)
+
                 # Título da página
                 c.setFont("Helvetica-Bold", 11)
                 title = f'Página {pg}'
