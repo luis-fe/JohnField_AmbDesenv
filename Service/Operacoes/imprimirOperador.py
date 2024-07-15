@@ -128,7 +128,7 @@ def criar_formulario(saida_pdf, nomeOperador):
                 c.drawString(inicio4 * cm, (24.2 - (5.5 * 3)) * cm, title)
 
                 # Categoria da operação
-                Label(c, codigoOperador, inicio3, 23.7 - (5.5 * 3))
+                Label(c, codigoOperador, inicio4, 23.7 - (5.5 * 3))
 
                 # Gerar QR code
                 qr = qrcode.QRCode(version=1, box_size=int(1.72 * cm), border=0)
@@ -150,7 +150,7 @@ def criar_formulario(saida_pdf, nomeOperador):
                 c.drawString(inicio5 * cm, (24.2 - (5.5 * 4)) * cm, title)
 
                 # Categoria da operação
-                Label(c, codigoOperador, inicio3, 23.7 - (5.5 * 4))
+                Label(c, codigoOperador, inicio5, 23.7 - (5.5 * 4))
 
                 # Gerar QR code
                 qr = qrcode.QRCode(version=1, box_size=int(1.72 * cm), border=0)
