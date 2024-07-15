@@ -1,9 +1,11 @@
 # Use uma imagem base oficial do Python
-FROM python:3.9-alpine
+FROM python:3.9-slim
 
 # Atualize a lista de pacotes e instale dependências necessárias
-RUN apk update && \
-    apk add --no-cache postgresql-dev gcc python3-dev musl-dev
+RUN apt-get update && \
+    apt-get install -y postgresql postgresql-contrib gcc libpq-dev && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Crie e ative um ambiente virtual Python
 RUN python -m venv --copies /opt/venv
