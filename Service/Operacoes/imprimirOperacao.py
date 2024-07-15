@@ -181,7 +181,6 @@ def criar_formulario(saida_pdf, nomeOperacao):
                 c.setFont("Helvetica-Bold", 21)
                 title = 'FORMULÁRIO DE OPERACÕES'
                 c.drawString(5.0 * cm, 28.7 * cm, title)
-
                 # Título da página
                 c.setFont("Helvetica-Bold", 11)
                 title = f'Página {pg}'
