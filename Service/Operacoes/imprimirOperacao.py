@@ -154,8 +154,8 @@ def criar_formulario(saida_pdf, nomeOperacao):
                 else:
                     title = operacao[:17]
                     title2 = operacao[17:]
-                c.drawString(inicio3 * cm, (24.2 - (5.5 * 3)) * cm, title)
-                c.drawString(inicio3 * cm, (23.7 - (5.5 * 3)) * cm, title2)
+                c.drawString(inicio3 * cm, (24.2 - (5.5 * 4)) * cm, title)
+                c.drawString(inicio3 * cm, (23.7 - (5.5 * 4)) * cm, title2)
                 # Categoria da operação
 
                 # Gerar QR code
