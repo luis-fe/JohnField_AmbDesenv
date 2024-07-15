@@ -217,7 +217,7 @@ def RankingOperadoresEficiencia(dataInico, dataFinal):
             "Codigo Registro": 'max'}).reset_index()
 
         consulta = pd.merge(consulta,produtividade,on=['Data','codOperador','Codigo Registro'])
-        consulta['Eficiencia'] = round(consulta['tempoTotal(min)Acum']/consulta['tempo PrevistoAcum'],3)*100
+        consulta['Eficiencia'] = round(consulta['tempo PrevistoAcum']/consulta['tempoTotal(min)Acum'],3)*100
         consulta['Eficiencia'] = consulta['Eficiencia'].round(1)
 
         consulta2 = consulta.groupby('codOperador').agg({
@@ -227,13 +227,13 @@ def RankingOperadoresEficiencia(dataInico, dataFinal):
         'tempoTotal(min)Acum':'sum'
         }).reset_index()
         consulta2['tempoTotal(min)Acum'] = consulta2['tempoTotal(min)Acum'].round(4)
-        consulta2['Eficiencia'] = round(consulta2['tempoTotal(min)Acum']/consulta2['tempo PrevistoAcum'],3)*100
+        consulta2['Eficiencia'] = round(consulta2['tempo PrevistoAcum']/consulta2['tempoTotal(min)Acum'],3)*100
         consulta2['Eficiencia'] = consulta2['Eficiencia'].round(1)
 
         consulta2 = consulta2.sort_values(by=['Eficiencia'], ascending=False)
         consulta2['Eficiencia'] = consulta2['Eficiencia'].astype(str)+'%'
 
-        efiMedia = round(consulta2['tempoTotal(min)Acum'].sum() /consulta2['tempo PrevistoAcum'].sum(),3)*100
+        efiMedia = round(consulta2['tempo PrevistoAcum'].sum() /consulta2['tempoTotal(min)Acum'].sum(),3)*100
 
         dados = {
             '0-Eficiencia Média Periodo': f'{efiMedia}%',
@@ -277,7 +277,7 @@ def RankingOperacoesEficiencia(dataInico, dataFinal):
             "Codigo Registro": 'max'}).reset_index()
 
         consulta = pd.merge(consulta,produtividade,on=['Data','codOperador','Codigo Registro','nomeOperacao'])
-        consulta['Eficiencia'] = round(consulta['tempoTotal(min)Acum']/consulta['tempo PrevistoAcum'],3)*100
+        consulta['Eficiencia'] = round(consulta['tempo PrevistoAcum']/consulta['tempoTotal(min)Acum'],3)*100
         consulta['Eficiencia'] = consulta['Eficiencia'].round(1)
 
         consulta2 = consulta.groupby('nomeOperacao').agg({
@@ -286,13 +286,13 @@ def RankingOperacoesEficiencia(dataInico, dataFinal):
         'tempoTotal(min)Acum':'sum'
         }).reset_index()
         consulta2['tempoTotal(min)Acum'] = consulta2['tempoTotal(min)Acum'].round(4)
-        consulta2['Eficiencia'] = round(consulta2['tempoTotal(min)Acum']/consulta2['tempo PrevistoAcum'],3)*100
+        consulta2['Eficiencia'] = round(consulta2['tempo PrevistoAcum']/consulta2['tempoTotal(min)Acum'],3)*100
         consulta2['Eficiencia'] = consulta2['Eficiencia'].round(1)
 
         consulta2 = consulta2.sort_values(by=['Eficiencia'], ascending=False)
         consulta2['Eficiencia'] = consulta2['Eficiencia'].astype(str)+'%'
 
-        efiMedia = round(consulta2['tempoTotal(min)Acum'].sum() /consulta2['tempo PrevistoAcum'].sum(),3)*100
+        efiMedia = round(consulta2['tempo PrevistoAcum'].sum() /consulta2['tempoTotal(min)Acum'].sum(),3)*100
 
         dados = {
             '0-Eficiencia Média Periodo': f'{efiMedia}%',
