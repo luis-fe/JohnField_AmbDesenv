@@ -223,9 +223,10 @@ def RankingOperadoresEficiencia(dataInico, dataFinal):
         consulta2 = consulta.groupby('codOperador').agg({
         'nomeOperador':'first',
         'qtdPcsAcum':'sum',
-        'tempo PrevistoAcum':'sum',
-        'tempoTotal(min)Acum':'sum'
+        'tempo Previsto':'sum',
+        'tempoTotal(min)':'sum'
         }).reset_index()
+
         consulta2['tempoTotal(min)Acum'] = consulta2['tempoTotal(min)Acum'].round(4)
         consulta2['Eficiencia'] = round(consulta2['tempo PrevistoAcum']/consulta2['tempoTotal(min)Acum'],3)*100
         consulta2['Eficiencia'] = consulta2['Eficiencia'].round(1)
