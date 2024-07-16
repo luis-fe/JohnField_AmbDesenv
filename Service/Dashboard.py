@@ -208,7 +208,7 @@ def RankingOperadoresEficiencia(dataInico, dataFinal):
         return pd.DataFrame([])
     else:
         produtividade['tempoTotal(min)Acum'] = produtividade.groupby(['Data','codOperador'])['tempoTotal(min)'].cumsum()
-        produtividade['tempo Previsto'] = round(produtividade['Meta(pcs/hr)']/60,2) * produtividade['qtdPcs']
+        produtividade['tempo Previsto'] = produtividade['qtdPcs']/round(produtividade['Meta(pcs/hr)']/60,2)
         produtividade['tempo PrevistoAcum'] = produtividade.groupby(['Data','codOperador'])['tempo Previsto'].cumsum()
         produtividade['tempo PrevistoAcum'] = produtividade['tempo PrevistoAcum'].round(2)
         produtividade['qtdPcsAcum'] = produtividade.groupby(['Data','codOperador'])['qtdPcs'].cumsum()
@@ -268,7 +268,7 @@ def RankingOperacoesEficiencia(dataInico, dataFinal):
         return pd.DataFrame([])
     else:
         produtividade['tempoTotal(min)Acum'] = produtividade.groupby(['Data','nomeOperacao'])['tempoTotal(min)'].cumsum()
-        produtividade['tempo Previsto'] = round(produtividade['Meta(pcs/hr)']/60,2) * produtividade['qtdPcs']
+        produtividade['tempo Previsto'] = round(produtividade['qtdPcs']/produtividade['Meta(pcs/hr)']/60,2)
         produtividade['tempo PrevistoAcum'] = produtividade.groupby(['Data','nomeOperacao'])['tempo Previsto'].cumsum()
         produtividade['tempo PrevistoAcum'] = produtividade['tempo PrevistoAcum'].round(2)
         produtividade['qtdPcsAcum'] = produtividade.groupby(['Data','nomeOperacao'])['qtdPcs'].cumsum()
@@ -316,7 +316,7 @@ order by "Data", "Codigo Registro"
         return pd.DataFrame([])
     else:
         produtividade['11-TempoREAL_Acumulado'] = produtividade.groupby(['01-Data'])['10-TempoRealizado'].cumsum()
-        produtividade['08-TempoPREVISTO'] = (produtividade['06-Meta(pcs/hr)']/60)*produtividade['07-PcsProduzidas']
+        produtividade['08-TempoPREVISTO'] = produtividade['07-PcsProduzidas']/(produtividade['06-Meta(pcs/hr)']/60)
         produtividade['08-TempoPREVISTO'] = produtividade['08-TempoPREVISTO'].round(2)
         produtividade['09-TempoPREVISTO_Acumulado'] = produtividade.groupby(['01-Data'])['08-TempoPREVISTO'].cumsum()
         produtividade['09-TempoPREVISTO_Acumulado'] = produtividade['09-TempoPREVISTO_Acumulado'].round(2)
