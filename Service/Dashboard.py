@@ -317,7 +317,10 @@ order by "Data", "Codigo Registro"
     else:
         produtividade['11-TempoREAL_Acumulado'] = produtividade.groupby(['01-Data'])['10-TempoRealizado'].cumsum()
         produtividade['08-TempoPREVISTO'] = (produtividade['06-Meta(pcs/hr)']/60)*produtividade['07-PcsProduzidas']
+        produtividade['08-TempoPREVISTO'] = produtividade['08-TempoPREVISTO'].round(2)
         produtividade['09-TempoPREVISTO_Acumulado'] = produtividade.groupby(['01-Data'])['08-TempoPREVISTO'].cumsum()
+        produtividade['09-TempoPREVISTO_Acumulado'] = produtividade['09-TempoPREVISTO_Acumulado'].round(2)
+
         produtividade['12-Eficiencia'] = (produtividade['09-TempoPREVISTO_Acumulado']/produtividade['11-TempoREAL_Acumulado'])*100
         produtividade['12-Eficiencia'] = produtividade['12-Eficiencia'] .round(2)
         produtividade['12-Eficiencia'] = produtividade['12-Eficiencia'] .astype(str)+'%'
