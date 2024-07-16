@@ -299,3 +299,30 @@ def RankingOperacoesEficiencia(dataInico, dataFinal):
             '1-Detalhamento': consulta2.to_dict(orient='records')}
 
         return pd.DataFrame([dados])
+
+
+def DetalhamentoProdutividadeOperador(dataInico, dataFinal, nomeOperador):
+    sql = """
+    select "Data" as "01-Data","nomeOperacao" as "05-Operacao", "Hr Inicio" as "02-Inicio", "Hr Final" as "03- Final","paradas min" as "04-Paradas" ,"tempoTotal(min)" as "10-TempoRealizado" , "qtdPcs" as "07-PcsProduzidas", "Meta(pcs/hr)" as "06-Meta(pcs/hr)"  from "Easy"."ColetasProducao" cp 
+where cp."Data" >= %s and cp."Data" <= %s
+and "nomeOperador" = %s
+order by "Data", "Codigo Registro" 
+    """
+
+    conn = ConexaoPostgreMPL.conexaoJohn()
+    produtividade =pd.read_sql(sql,conn,params=(dataInico, dataFinal, nomeOperador))
+
+    if produtividade.empty:
+        return pd.DataFrame([])
+    else:
+        produtividade['11-TempoREAL_Acumulado'] = produtividade.groupby(['01-Data'])['10-TempoRealizado'].cumsum()
+        produtividade['08-TempoPREVISTO'] = (produtividade['06-Meta(pcs/hr)']/60)*produtividade['07-PcsProduzidas']
+        produtividade['09-TempoPREVISTO_Acumulado'] = produtividade.groupby(['01-Data'])['08-TempoPREVISTO'].cumsum()
+        produtividade['12-Eficiencia'] = (produtividade['09-TempoPREVISTO_Acumulado']/produtividade['11-TempoREAL_Acumulado'])*100
+        produtividade['12-Eficiencia'] = produtividade['12-Eficiencia'] .round(2)
+        produtividade['12-Eficiencia'] = produtividade['12-Eficiencia'] .astype(str)+'%'
+
+        produtividade['01-Data'] = pd.to_datetime(produtividade['01-Data'], format='%a, %d %b %Y %H:%M:%S %Z')
+        produtividade['01-Data'] = produtividade['01-Data'].dt.strftime('%d/%m/%Y')
+
+        return produtividade
