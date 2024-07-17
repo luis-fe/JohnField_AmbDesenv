@@ -299,7 +299,7 @@ def RankingOperacoesEficiencia(dataInico, dataFinal):
         efiMedia = round(consulta2['tempo Previsto'].sum() /consulta2['tempoTotal(min)'].sum(),3)*100
 
         consulta2.rename(
-            columns={'qtdPcsAcum': 'qtdPcs'},
+            columns={'qtdPcs': 'qtdPcsAcum'},
             inplace=True)
 
         dados = {
