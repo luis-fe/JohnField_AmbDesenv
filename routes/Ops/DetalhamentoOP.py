@@ -1,7 +1,8 @@
 from flask import Blueprint, jsonify, request
 from functools import wraps
-from Service import Fase_OP_JohnField, estornarOP
-EstornoOP_routesJohn = Blueprint('EstornarOPJohn', __name__) # Esse é o nome atribuido para o conjunto de rotas envolvendo usuario
+from Service.OrdemProd import detalhamentoOP
+
+DetalhamentoOPJohn = Blueprint('DetalhamentoOPJohn', __name__) # Esse é o nome atribuido para o conjunto de rotas envolvendo usuario
 
 def token_required(f):
     @wraps(f)
@@ -14,17 +15,15 @@ def token_required(f):
     return decorated_function
 
 
-
-@EstornoOP_routesJohn.route('/api/JonhField/EstornarMovOP', methods=['POST'])
+@DetalhamentoOPJohn.route('/api/JonhField/DetalhaOPEncerrada', methods=['GET'])
 @token_required
-def EstornarMovOP():
-    data = request.get_json()
-    idUsuario = data.get('idUsuario')
-    codOP = data.get('codOP')
-    codCliente = data.get('codCliente')
+def getDetalhaOPEncerrada():
+
+    codOP = request.args.get('codOP', '')
+    codCliente = request.args.get('codCliente', '')
 
 
-    consulta = estornarOP.EstornoOP(codOP, codCliente, idUsuario)
+    consulta = detalhamentoOP.DetalharOPEncerrada(codOP, codCliente)
     # Obtém os nomes das colunas
     column_names = consulta.columns
     # Monta o dicionário com os cabeçalhos das colunas e os valores correspondentes
