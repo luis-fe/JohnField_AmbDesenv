@@ -54,8 +54,48 @@ def EstornoOP(codOP, codCliente, idUsuarioEstorno):
             print('ok')
             return pd.DataFrame([{'status':True , 'Mensagem':'OP estornada com sucesso'}])
 
-#EstornoOP('134985-1','1',1414)
+def EstornoOPEncerrada(codOP, codCliente, idUsuarioEstorno):
+    idUsuarioEstorno = int(idUsuarioEstorno)
+    chaveOP = str(codOP)+'||'+str(codCliente)
+    
+    # Conferir se a Op está encerrada
+    conferir = """SELECT 
+    op."codOP", 
+    c."nomeCliente",  
+    oe.quantidade,
+    op."DataCriacao"::Date, 
+    oe.dataencerramento::Date, 
+    (oe.dataencerramento::Date - op."DataCriacao"::Date) AS "LeadTime"
+    FROM "Easy"."OpsEncerradas" oe
+    INNER JOIN "Easy"."OrdemProducao" op ON op."idOP" = oe."idOP"
+    INNER JOIN "Easy"."Cliente" c ON c.codcliente = op."codCliente"
+    Where oe."idOP" = %s
+    """
+    with ConexaoPostgreMPL.conexaoJohn() as conn:
+        conferirPD = pd.read_sql(conferir, conn, params=(chaveOP,)).reset_index()
+
+    if conferirPD.empty:
+        return pd.DataFrame([{'status':False , 'Mensagem':'A OP nao está baixada'}])
+    else:
+        update = """
+        UPDATE "Easy"."Fase/OP"
+        SET "Situacao" = 'Em Processo'
+        WHERE "idOP" = %s
+        AND "DataMov" = (
+        SELECT MAX("DataMov")  -- Subconsulta para obter a última DataMov
+        FROM "Easy"."Fase/OP"
+        WHERE "idOP" = %s
+        )
+        """ 
+        with ConexaoPostgreMPL.conexaoJohn() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(update,(chaveOP,chaveOP,))
+                    conn.commit()
+
+        return pd.DataFrame([{'status':True , 'Mensagem':'OP estornada com sucesso'}])
 
 
+        
+       
 
 
