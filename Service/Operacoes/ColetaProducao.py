@@ -4,6 +4,7 @@ import pytz
 from Service.Operacoes import Operadores, Opercao
 from Service import CategiaJohnField
 from datetime import datetime, time, timedelta
+
 def obterHoraAtual():
     fuso_horario = pytz.timezone('America/Sao_Paulo')  # Define o fuso horário do Brasil
     agora = datetime.now(fuso_horario)
@@ -234,3 +235,128 @@ where p."Data" >= %s and p."Data" <= %s
 
 
     return consulta
+
+
+
+def ColetaProducaoRetroativa(codOperador, nomeOperacao, qtdPecas, dataRetroativa,HorarioTermino):
+
+    operador = Operadores.ConsultarOperadores()
+    print(operador)
+    operador = operador[operador['codOperador']==int(codOperador)].reset_index()
+
+    if operador.empty:
+        return pd.DataFrame([{'Stauts':False, 'Mensagem':'Operador nao encontrado'}])
+
+    else:
+
+        operacoes =  Opercao.Buscar_Operacoes()
+        operacoes = operacoes[operacoes['nomeOperacao']==nomeOperacao].reset_index()
+
+        if operacoes.empty:
+            return pd.DataFrame([{'Stauts': False, 'Mensagem': 'Operacoes nao encontrado'}])
+
+        else:
+            operacoes = operacoes['codOperacao'][0]
+
+            sql = """
+        SELECT 
+            MAX("DataHora"::time) AS "utimoTempo", 
+            COUNT("DataHora") AS registros 
+        FROM 
+            "Easy"."RegistroProducao" rp 
+        WHERE 
+            "codOperador" = %s
+            AND (("DataHora"::timestamp AT TIME ZONE 'UTC') AT TIME ZONE 'America/Sao_Paulo')::date = ( %s AT TIME ZONE 'America/Sao_Paulo')::date;
+                """
+            conn = ConexaoPostgreMPL.conexaoJohn()
+            sql = pd.read_sql(sql, conn, params=(codOperador,dataRetroativa,))
+
+            sqlEscala = """
+                select "codOperador" , et.periodo1_inicio, periodo2_inicio  , periodo3_inicio, periodo1_fim ,periodo2_fim  from "Easy"."Operador" o 
+                inner join "Easy"."EscalaTrabalho" et on et."Escala" = o."Escala" 
+                where "codOperador" = %s
+                """
+            sqlEscala = pd.read_sql(sqlEscala, conn, params=(codOperador,))
+            hora_esc1 = sqlEscala['periodo1_inicio'][0]
+            hora_esc1Fim = sqlEscala['periodo1_fim'][0]
+
+
+            hora_esc2 = sqlEscala['periodo2_inicio'][0]
+            hora_esc2Fim = sqlEscala['periodo2_fim'][0]
+
+            hora_esc3 = sqlEscala['periodo3_inicio'][0]
+
+            if sql['utimoTempo'][0] == None:
+                    ultimotempo = hora_esc1 + ':00'
+                    registro = sql['registros'][0] + 1
+
+            else:
+                    ultimotempo = sql['utimoTempo'][0]
+                    ultimotempo = str(ultimotempo)
+                    registro = sql['registros'][0] + 1
+
+            Tempo = dataRetroativa+' '+HorarioTermino+':00'
+            # Converte a string para um objeto datetime
+            datetime_obj = datetime.strptime(Tempo, "%Y-%m-%d %H:%M:%S")
+            ultimotempo = datetime.strptime(ultimotempo, "%H:%M:%S")
+            hora_esc1Fim = datetime.strptime(hora_esc1Fim +':00', "%H:%M:%S")
+            hora_esc2 = datetime.strptime(hora_esc2 +':00', "%H:%M:%S")
+            hora_esc2Fim = datetime.strptime(hora_esc2Fim +':00', "%H:%M:%S")
+
+            hora_esc3 = datetime.strptime(hora_esc3 +':00', "%H:%M:%S")
+
+
+            # Extrai o componente time do objeto datetime
+            HorarioFinal = datetime_obj.time()
+            ultimotempo = ultimotempo.time()
+            hora_esc1Fim = hora_esc1Fim.time()
+            hora_esc2 = hora_esc2.time()
+            hora_esc2Fim = hora_esc2Fim.time()
+            hora_esc3 = hora_esc3.time()
+
+            intervalo = 0
+            if HorarioFinal < hora_esc2:
+                    intervalo = 0 + intervalo
+
+            if HorarioFinal > hora_esc2 and ultimotempo < hora_esc2:
+                    datetime1 = datetime.combine(datetime.today(), hora_esc1Fim)
+                    datetime2 = datetime.combine(datetime.today(), hora_esc2)
+
+                    # Calcula a diferença entre os dois objetos datetime
+                    time_difference = datetime2 - datetime1
+
+                    # O resultado é um objeto timedelta
+                    # Para obter a diferença em minutos
+                    difference_in_minutes = time_difference.total_seconds() / 60
+                    intervalo = intervalo + difference_in_minutes
+
+            if HorarioFinal > hora_esc3 and ultimotempo < hora_esc3:
+
+                    datetime1 = datetime.combine(datetime.today(), hora_esc2Fim)
+                    datetime2 = datetime.combine(datetime.today(), hora_esc3)
+
+                    # Calcula a diferença entre os dois objetos datetime
+                    time_difference = datetime2 - datetime1
+
+                    # O resultado é um objeto timedelta
+                    # Para obter a diferença em minutos
+                    difference_in_minutes = time_difference.total_seconds() / 60
+                    intervalo = intervalo + difference_in_minutes
+
+            inserir = """
+                                    insert into "Easy"."RegistroProducao" ("codOperador", "codOperacao", 
+                                    "qtdPcs", "DataHora", "HrInico", "HrFim", "desInt", "sequencia")
+                                    values ( %s, %s , %s ,%s ,%s , %s ,%s ,%s  )
+                                    """
+            HorarioFinal = HorarioFinal.strftime("%H:%M:%S")
+
+            conn = ConexaoPostgreMPL.conexaoJohn()
+            cursor = conn.cursor()
+            cursor.execute(inserir, (
+                    int(codOperador), int(operacoes), qtdPecas, Tempo, ultimotempo, HorarioFinal, str(intervalo), str(registro)))
+            conn.commit()
+            cursor.close()
+
+            conn.close()
+
+            return pd.DataFrame([{'Mensagem': "Registro salvo com Sucesso!", "Status": True, 'teste':f'{sql} , {codOperador}'}])
