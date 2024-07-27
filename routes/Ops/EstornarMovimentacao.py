@@ -38,9 +38,9 @@ def EstornarMovOP():
 
 
 
-@EstornoOP_routesJohn.route('/api/JonhField/EstornarMovOP', methods=['DELETE'])
+@EstornoOP_routesJohn.route('/api/JonhField/EstornoOPEncerrada', methods=['DELETE'])
 @token_required
-def EstornarMovOP():
+def delete_EstornoOPEncerrada():
     data = request.get_json()
     idUsuario = data.get('idUsuario')
     codOP = data.get('codOP')
