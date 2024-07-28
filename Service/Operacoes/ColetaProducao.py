@@ -30,29 +30,31 @@ def ColetaProducao(codOperador, nomeOperacao, qtdPecas):
 
         else:
             operacoes = operacoes['codOperacao'][0]
-           # categorias = CategiaJohnField.BuscarCategorias()
-           # categorias = categorias[categorias['nomeCategoria'] == nomeCategoria].reset_index()
-
-            #if categorias.empty:
-             #   return pd.DataFrame([{'Stauts': False, 'Mensagem': 'categoria nao encontrado'}])
-
-            #else:
-             #   categorias = categorias['codcategoria'][0]
-            #  Tempo = obterHoraAtual()
-
-                # Verifica se é o primeiro registro do dia desse colaborador
             sql = """
-SELECT 
-        MAX("DataHora"::time) AS "utimoTempo", 
-    COUNT("DataHora") AS registros 
-FROM 
-    "Easy"."RegistroProducao" rp 
-WHERE 
-    "codOperador" = %s
-    AND (("DataHora"::timestamp AT TIME ZONE 'UTC') AT TIME ZONE 'America/Sao_Paulo')::date = (NOW() AT TIME ZONE 'America/Sao_Paulo')::date;
+                SELECT 
+                    MAX("DataHora"::time) AS "utimoTempo", 
+                    COUNT("DataHora") AS registros 
+                FROM 
+                    "Easy"."RegistroProducao" rp 
+                WHERE 
+                    "codOperador" = %s
+                    AND (("DataHora"::timestamp AT TIME ZONE 'UTC') AT TIME ZONE 'America/Sao_Paulo')::date = (NOW() AT TIME ZONE 'America/Sao_Paulo')::date;
                 """
+            
+            sql2 = """
+            SELECT 
+                MAX("DataHora"::time) AS "utimoTempo", 
+                COUNT("DataHora") AS registros ,
+                MAX("DataHora"::varchar) AS "utimaData"
+            FROM 
+                "Easy"."RegistroProducao" rp 
+            WHERE 
+                "codOperador" = %s
+                AND (("DataHora"::timestamp AT TIME ZONE 'UTC') AT TIME ZONE 'America/Sao_Paulo')::date < (NOW() AT TIME ZONE 'America/Sao_Paulo')::date;
+            """
             conn = ConexaoPostgreMPL.conexaoJohn()
             sql = pd.read_sql(sql, conn, params=(codOperador,))
+            sql2 = pd.read_sql(sql2, conn, params=(codOperador,))
 
             sqlEscala = """
                 select "codOperador" , et.periodo1_inicio, periodo2_inicio  , periodo3_inicio, periodo1_fim ,periodo2_fim  from "Easy"."Operador" o 
@@ -62,7 +64,6 @@ WHERE
             sqlEscala = pd.read_sql(sqlEscala, conn, params=(codOperador,))
             hora_esc1 = sqlEscala['periodo1_inicio'][0]
             hora_esc1Fim = sqlEscala['periodo1_fim'][0]
-
 
             hora_esc2 = sqlEscala['periodo2_inicio'][0]
             hora_esc2Fim = sqlEscala['periodo2_fim'][0]
@@ -79,7 +80,13 @@ WHERE
                     registro = sql['registros'][0] + 1
 
             Tempo = obterHoraAtual()
+            if not sql2.empty:
+                utimaData = sql2['utimaData'][0]
+            else:
+                utimaData = obterHoraAtual()
+
             # Converte a string para um objeto datetime
+            
             datetime_obj = datetime.strptime(Tempo, "%Y-%m-%d %H:%M:%S")
             ultimotempo = datetime.strptime(ultimotempo, "%H:%M:%S")
             hora_esc1Fim = datetime.strptime(hora_esc1Fim +':00', "%H:%M:%S")
@@ -128,15 +135,15 @@ WHERE
 
             inserir = """
                                     insert into "Easy"."RegistroProducao" ("codOperador", "codOperacao", 
-                                    "qtdPcs", "DataHora", "HrInico", "HrFim", "desInt", "sequencia")
-                                    values ( %s, %s , %s ,%s ,%s , %s ,%s ,%s  )
+                                    "qtdPcs", "DataHora", "HrInico", "HrFim", "desInt", "sequencia", "DiaInicial")
+                                    values ( %s, %s , %s ,%s ,%s , %s ,%s ,%s, %s  )
                                     """
             HorarioFinal = HorarioFinal.strftime("%H:%M:%S")
 
             conn = ConexaoPostgreMPL.conexaoJohn()
             cursor = conn.cursor()
             cursor.execute(inserir, (
-                    int(codOperador), int(operacoes), qtdPecas, Tempo, ultimotempo, HorarioFinal, str(intervalo), str(registro)))
+                    int(codOperador), int(operacoes), qtdPecas, Tempo, ultimotempo, HorarioFinal, str(intervalo), str(registro),utimaData))
             conn.commit()
             cursor.close()
 
