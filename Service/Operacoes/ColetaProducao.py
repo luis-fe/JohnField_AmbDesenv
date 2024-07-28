@@ -311,7 +311,7 @@ def ColetaProducaoRetroativa(codOperador, nomeOperacao, qtdPecas, dataRetroativa
             ultimotempo = ultimotempo.time()
 
             if HorarioFinal > ultimotempo :
-                return pd.DataFrame([{'Mensagem': f"Horario Informado {HorarioFinal.strftime("%H:%M")} é menor que o ultimo horario {ultimotempo.strftime("%H:%M")} registrado em {dataRetroativa}", "Status": False, 'Teste':'falso'}])
+                return pd.DataFrame([{'Mensagem': f"Horário Informado {HorarioFinal.strftime('%H:%M')} é menor que o último horário {ultimotempo.strftime('%H:%M')} registrado em {dataRetroativa}", "Status": False, 'Teste': 'falso'}])
             else:    
 
                 hora_esc1Fim = hora_esc1Fim.time()
