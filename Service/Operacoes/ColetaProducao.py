@@ -309,54 +309,60 @@ def ColetaProducaoRetroativa(codOperador, nomeOperacao, qtdPecas, dataRetroativa
             # Extrai o componente time do objeto datetime
             HorarioFinal = datetime_obj.time()
             ultimotempo = ultimotempo.time()
-            hora_esc1Fim = hora_esc1Fim.time()
-            hora_esc2 = hora_esc2.time()
-            hora_esc2Fim = hora_esc2Fim.time()
-            hora_esc3 = hora_esc3.time()
 
-            intervalo = 0
-            if HorarioFinal < hora_esc2:
-                    intervalo = 0 + intervalo
+            if HorarioFinal > ultimotempo :
+                return pd.DataFrame([{'Mensagem': f"Horario Informado {HorarioFinal} é menor que o 
+                                      ultimo horario {ultimotempo} registrado em {dataRetroativa}", "Status": False}])
+            else:    
 
-            if HorarioFinal > hora_esc2 and ultimotempo < hora_esc2:
-                    datetime1 = datetime.combine(datetime.today(), hora_esc1Fim)
-                    datetime2 = datetime.combine(datetime.today(), hora_esc2)
+                hora_esc1Fim = hora_esc1Fim.time()
+                hora_esc2 = hora_esc2.time()
+                hora_esc2Fim = hora_esc2Fim.time()
+                hora_esc3 = hora_esc3.time()
 
-                    # Calcula a diferença entre os dois objetos datetime
-                    time_difference = datetime2 - datetime1
+                intervalo = 0
+                if HorarioFinal < hora_esc2:
+                        intervalo = 0 + intervalo
 
-                    # O resultado é um objeto timedelta
-                    # Para obter a diferença em minutos
-                    difference_in_minutes = time_difference.total_seconds() / 60
-                    intervalo = intervalo + difference_in_minutes
+                if HorarioFinal > hora_esc2 and ultimotempo < hora_esc2:
+                        datetime1 = datetime.combine(datetime.today(), hora_esc1Fim)
+                        datetime2 = datetime.combine(datetime.today(), hora_esc2)
 
-            if HorarioFinal > hora_esc3 and ultimotempo < hora_esc3:
+                        # Calcula a diferença entre os dois objetos datetime
+                        time_difference = datetime2 - datetime1
 
-                    datetime1 = datetime.combine(datetime.today(), hora_esc2Fim)
-                    datetime2 = datetime.combine(datetime.today(), hora_esc3)
+                        # O resultado é um objeto timedelta
+                        # Para obter a diferença em minutos
+                        difference_in_minutes = time_difference.total_seconds() / 60
+                        intervalo = intervalo + difference_in_minutes
 
-                    # Calcula a diferença entre os dois objetos datetime
-                    time_difference = datetime2 - datetime1
+                if HorarioFinal > hora_esc3 and ultimotempo < hora_esc3:
 
-                    # O resultado é um objeto timedelta
-                    # Para obter a diferença em minutos
-                    difference_in_minutes = time_difference.total_seconds() / 60
-                    intervalo = intervalo + difference_in_minutes
+                        datetime1 = datetime.combine(datetime.today(), hora_esc2Fim)
+                        datetime2 = datetime.combine(datetime.today(), hora_esc3)
 
-            inserir = """
-                                    insert into "Easy"."RegistroProducao" ("codOperador", "codOperacao", 
-                                    "qtdPcs", "DataHora", "HrInico", "HrFim", "desInt", "sequencia")
-                                    values ( %s, %s , %s ,%s ,%s , %s ,%s ,%s  )
-                                    """
-            HorarioFinal = HorarioFinal.strftime("%H:%M:%S")
+                        # Calcula a diferença entre os dois objetos datetime
+                        time_difference = datetime2 - datetime1
 
-            conn = ConexaoPostgreMPL.conexaoJohn()
-            cursor = conn.cursor()
-            cursor.execute(inserir, (
-                    int(codOperador), int(operacoes), qtdPecas, Tempo, ultimotempo, HorarioFinal, str(intervalo), str(registro)))
-            conn.commit()
-            cursor.close()
+                        # O resultado é um objeto timedelta
+                        # Para obter a diferença em minutos
+                        difference_in_minutes = time_difference.total_seconds() / 60
+                        intervalo = intervalo + difference_in_minutes
 
-            conn.close()
+                inserir = """
+                                        insert into "Easy"."RegistroProducao" ("codOperador", "codOperacao", 
+                                        "qtdPcs", "DataHora", "HrInico", "HrFim", "desInt", "sequencia")
+                                        values ( %s, %s , %s ,%s ,%s , %s ,%s ,%s  )
+                                        """
+                HorarioFinal = HorarioFinal.strftime("%H:%M:%S")
 
-            return pd.DataFrame([{'Mensagem': "Registro salvo com Sucesso!", "Status": True, 'teste':f'{sql} , {codOperador}'}])
+                conn = ConexaoPostgreMPL.conexaoJohn()
+                cursor = conn.cursor()
+                cursor.execute(inserir, (
+                        int(codOperador), int(operacoes), qtdPecas, Tempo, ultimotempo, HorarioFinal, str(intervalo), str(registro)))
+                conn.commit()
+                cursor.close()
+
+                conn.close()
+
+                return pd.DataFrame([{'Mensagem': "Registro salvo com Sucesso!", "Status": True, 'teste':f'{sql} , {codOperador}'}])
