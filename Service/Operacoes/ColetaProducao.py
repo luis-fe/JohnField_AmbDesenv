@@ -50,7 +50,7 @@ def ColetaProducao(codOperador, nomeOperacao, qtdPecas):
                 "Easy"."RegistroProducao" rp 
             WHERE 
                 "codOperador" = %s
-                AND (("DataHora"::timestamp AT TIME ZONE 'UTC') AT TIME ZONE 'America/Sao_Paulo')::date < (NOW() AT TIME ZONE 'America/Sao_Paulo')::date;
+                AND (("DataHora"::timestamp AT TIME ZONE 'UTC') AT TIME ZONE 'America/Sao_Paulo')::date <= (NOW() AT TIME ZONE 'America/Sao_Paulo')::date;
             """
             conn = ConexaoPostgreMPL.conexaoJohn()
             sql = pd.read_sql(sql, conn, params=(codOperador,))
@@ -274,8 +274,22 @@ def ColetaProducaoRetroativa(codOperador, nomeOperacao, qtdPecas, dataRetroativa
             "codOperador" = %s
             AND "DataHora"::date = %s::date;
                 """
+            
+            sql2 = """
+            SELECT 
+                MAX("DataHora"::time) AS "utimoTempo", 
+                COUNT("DataHora") AS registros ,
+                MAX("DataHora"::varchar) AS "utimaData"
+            FROM 
+                "Easy"."RegistroProducao" rp 
+            WHERE 
+                "codOperador" = %s
+                AND "DataHora"::date <= %s::date;
+            """
+
             conn = ConexaoPostgreMPL.conexaoJohn()
             sql = pd.read_sql(sql, conn, params=(codOperador,dataRetroativa,))
+            sql2 = pd.read_sql(sql2, conn, params=(codOperador,))
 
             sqlEscala = """
                 select "codOperador" , et.periodo1_inicio, periodo2_inicio  , periodo3_inicio, periodo1_fim ,periodo2_fim  from "Easy"."Operador" o 
@@ -302,6 +316,13 @@ def ColetaProducaoRetroativa(codOperador, nomeOperacao, qtdPecas, dataRetroativa
                     registro = sql['registros'][0] + 1
 
             Tempo = dataRetroativa+' '+HorarioTermino+':00'
+
+            if not sql2.empty:
+                utimaData = sql2['utimaData'][0]
+            else:
+                utimaData = obterHoraAtual()
+
+
             # Converte a string para um objeto datetime
             datetime_obj = datetime.strptime(Tempo, "%Y-%m-%d %H:%M:%S")
             ultimotempo = datetime.strptime(ultimotempo, "%H:%M:%S")
@@ -355,16 +376,16 @@ def ColetaProducaoRetroativa(codOperador, nomeOperacao, qtdPecas, dataRetroativa
                         intervalo = intervalo + difference_in_minutes
 
                 inserir = """
-                                        insert into "Easy"."RegistroProducao" ("codOperador", "codOperacao", 
-                                        "qtdPcs", "DataHora", "HrInico", "HrFim", "desInt", "sequencia")
-                                        values ( %s, %s , %s ,%s ,%s , %s ,%s ,%s  )
-                                        """
+                                    insert into "Easy"."RegistroProducao" ("codOperador", "codOperacao", 
+                                    "qtdPcs", "DataHora", "HrInico", "HrFim", "desInt", "sequencia", "DiaInicial")
+                                    values ( %s, %s , %s ,%s ,%s , %s ,%s ,%s, %s  )
+                                    """
                 HorarioFinal = HorarioFinal.strftime("%H:%M:%S")
 
                 conn = ConexaoPostgreMPL.conexaoJohn()
                 cursor = conn.cursor()
                 cursor.execute(inserir, (
-                        int(codOperador), int(operacoes), qtdPecas, Tempo, ultimotempo, HorarioFinal, str(intervalo), str(registro)))
+                        int(codOperador), int(operacoes), qtdPecas, Tempo, ultimotempo, HorarioFinal, str(intervalo), str(registro),utimaData))
                 conn.commit()
                 cursor.close()
 
