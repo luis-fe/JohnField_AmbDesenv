@@ -289,7 +289,7 @@ def ColetaProducaoRetroativa(codOperador, nomeOperacao, qtdPecas, dataRetroativa
 
             conn = ConexaoPostgreMPL.conexaoJohn()
             sql = pd.read_sql(sql, conn, params=(codOperador,dataRetroativa,))
-            sql2 = pd.read_sql(sql2, conn, params=(codOperador,))
+            sql2 = pd.read_sql(sql2, conn, params=(codOperador,dataRetroativa,))
 
             sqlEscala = """
                 select "codOperador" , et.periodo1_inicio, periodo2_inicio  , periodo3_inicio, periodo1_fim ,periodo2_fim  from "Easy"."Operador" o 
