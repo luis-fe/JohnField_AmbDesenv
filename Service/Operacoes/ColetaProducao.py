@@ -392,3 +392,35 @@ def ColetaProducaoRetroativa(codOperador, nomeOperacao, qtdPecas, dataRetroativa
                 conn.close()
 
                 return pd.DataFrame([{'Mensagem': "Registro salvo com Sucesso!", "Status": True, 'teste':f'{sql} , {codOperador}'}])
+            
+
+def ExclusaoColeta(nomeOperador, dataFinal,HrFinal):
+            
+
+    consultaCodOperador = Operadores.ConsultarOperadores()
+    consultaCodOperador = consultaCodOperador[consultaCodOperador['nomeOperador']== nomeOperador].reset_index()
+
+    if consultaCodOperador.empty:
+        return pd.DataFrame([{'Status':False, 'Mensagem':'Operador nao cadastrado'}])
+    else:
+        codOperador = consultaCodOperador['codOperador'][0]
+        verifica = ConsultaRegistroPorPeriodo(codOperador,dataFinal, dataFinal)
+        if verifica.empty:
+            return pd.DataFrame([{'Status':False, 'Mensagem':'Registro nao encontrado!'}])
+        else:
+            delete = """
+                delete from "Easy"."RegistroProducao" 
+                where "codOperador" = (select "codOperador"  from "Easy"."Operador" where "nomeOperador" = %s)
+                and "HrFim" = %s and "DataHora"::date = %s
+                """
+            conn = ConexaoPostgreMPL.conexaoJohn()
+            cursor = conn.cursor()
+            cursor.execute(delete,(nomeOperador, HrFinal,dataFinal))
+                
+            conn.commit()
+            cursor.close()
+
+            conn.close()
+
+            return pd.DataFrame([{'Status':True, 'Mensagem':'Registro Excluido com sucesso'}])
+                 
