@@ -1,3 +1,4 @@
+import select
 import pandas as pd
 import ConexaoPostgreMPL
 import pytz
@@ -427,6 +428,15 @@ def ExclusaoColeta(nomeOperador, dataFinal,periodo):
             return pd.DataFrame([{'Status':True, 'Mensagem':f'Registro Excluido com sucesso horaFinal {HrFinal}'}])
                  
 
+def ConfiguracaoIntervaloColeta():
+    select = """
+        select 
+            conf."tempoValidacaoRegistro(min)" 
+        from "Easy"."configuracaoGeral" conf
+    """
+     
+    conn = ConexaoPostgreMPL.conexaoEngine()
+    consulta = pd.read_sql(select, conn)
 
+    return consulta 
 
-                 

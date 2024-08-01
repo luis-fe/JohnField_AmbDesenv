@@ -153,3 +153,25 @@ def delete_ExluirColetaProducao():
             consulta_dict[column_name] = row[column_name]
         consulta_data.append(consulta_dict)
     return jsonify(consulta_data)
+
+
+
+@ColetaProducao_routesJohn.route('/api/JonhField/ConfIntervaloColeta', methods=['GET'])
+@token_required
+def get_ConfIntervaloColeta():
+
+
+
+        busca = ColetaProducao.ConfiguracaoIntervaloColeta()
+
+        # Verifica se 'busca' é um DataFrame
+        if not isinstance(busca, pd.DataFrame):
+            return jsonify({'error': 'Unexpected data format'}), 500
+
+        # Obtém os nomes das colunas
+        column_names = busca.columns.tolist()
+
+        # Monta o dicionário com os cabeçalhos das colunas e os valores correspondentes
+        consulta_data = busca.to_dict(orient='records')
+
+        return jsonify(consulta_data)
