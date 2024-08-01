@@ -6,7 +6,7 @@ def ConsultarOperadores():
     select * from "Easy"."Operador" o 
     """
 
-    conn = ConexaoPostgreMPL.create_engine()
+    conn = ConexaoPostgreMPL.conexaoEngine()
     consulta = pd.read_sql(sql,conn)
 
     return consulta
