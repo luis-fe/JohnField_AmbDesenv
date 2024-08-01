@@ -394,7 +394,7 @@ def ColetaProducaoRetroativa(codOperador, nomeOperacao, qtdPecas, dataRetroativa
                 return pd.DataFrame([{'Mensagem': "Registro salvo com Sucesso!", "Status": True, 'teste':f'{sql} , {codOperador}'}])
             
 
-def ExclusaoColeta(nomeOperador, dataFinal,HrFinal):
+def ExclusaoColeta(nomeOperador, dataFinal,periodo):
             
 
     consultaCodOperador = Operadores.ConsultarOperadores()
@@ -415,6 +415,8 @@ def ExclusaoColeta(nomeOperador, dataFinal,HrFinal):
                 """
             conn = ConexaoPostgreMPL.conexaoJohn()
             cursor = conn.cursor()
+            HrFinal = periodo[11:]
+            print(HrFinal)
             cursor.execute(delete,(nomeOperador, HrFinal,dataFinal))
                 
             conn.commit()
@@ -422,5 +424,9 @@ def ExclusaoColeta(nomeOperador, dataFinal,HrFinal):
 
             conn.close()
 
-            return pd.DataFrame([{'Status':True, 'Mensagem':'Registro Excluido com sucesso'}])
+            return pd.DataFrame([{'Status':True, 'Mensagem':f'Registro Excluido com sucesso horaFinal {HrFinal}'}])
+                 
+
+
+
                  

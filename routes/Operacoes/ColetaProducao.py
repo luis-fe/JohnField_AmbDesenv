@@ -138,11 +138,11 @@ def delete_ExluirColetaProducao():
     data = request.get_json()
     nomeOperador = data.get('nomeOperador')
     dataFinal = data.get('dataFinal')
-    HrFinal = data.get('HrFinal','-')
+    periodo = data.get('periodo','-')
 
 
 
-    consulta = ColetaProducao.ExclusaoColeta(nomeOperador,dataFinal,HrFinal )
+    consulta = ColetaProducao.ExclusaoColeta(nomeOperador,dataFinal,periodo )
     # Obtém os nomes das colunas
     column_names = consulta.columns
     # Monta o dicionário com os cabeçalhos das colunas e os valores correspondentes
