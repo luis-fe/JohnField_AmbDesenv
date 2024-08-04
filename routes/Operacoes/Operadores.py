@@ -42,6 +42,7 @@ def get_ConsultaCodOperadors():
     try:
         busca = Operadores.ConsultarOperadores()
         busca = busca[busca['codOperador']==int(codOperador)]
+        busca['status'] = True
 
         if busca.empty:
             busca = pd.DataFrame([{'status':False, 'mensagem':'colaborador nao encontrado'}])
