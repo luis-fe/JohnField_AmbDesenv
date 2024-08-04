@@ -43,6 +43,9 @@ def get_ConsultaCodOperadors():
         busca = Operadores.ConsultarOperadores()
         busca = busca[busca['codOperador']==int(codOperador)]
 
+        if busca.empty:
+            busca = pd.DataFrame([{'status':False, 'mensagem':'colaborador nao encontrado'}])
+
         # Verifica se 'busca' é um DataFrame
         if not isinstance(busca, pd.DataFrame):
             return jsonify({'error': 'Unexpected data format'}), 500
