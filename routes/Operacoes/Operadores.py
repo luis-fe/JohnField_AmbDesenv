@@ -34,6 +34,28 @@ def get_Operadores():
         return jsonify(consulta_data)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@operador_routesJohn.route('/api/JonhField/ConsultaCodOperador', methods=['GET'])
+@token_required
+def get_ConsultaCodOperadors():
+    codOperador = request.args.get('codOperador', '')
+    try:
+        busca = Operadores.ConsultarOperadores()
+        busca = busca[busca['codOperador']==int(codOperador)]
+
+        # Verifica se 'busca' é um DataFrame
+        if not isinstance(busca, pd.DataFrame):
+            return jsonify({'error': 'Unexpected data format'}), 500
+
+        # Obtém os nomes das colunas
+        column_names = busca.columns.tolist()
+
+        # Monta o dicionário com os cabeçalhos das colunas e os valores correspondentes
+        consulta_data = busca.to_dict(orient='records')
+
+        return jsonify(consulta_data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 @operador_routesJohn.route('/api/JonhField/ConsultaEscalaTrabalho', methods=['GET'])
