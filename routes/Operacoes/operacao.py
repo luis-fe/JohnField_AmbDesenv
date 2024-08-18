@@ -46,8 +46,21 @@ def InserirOperacao():
     Maq_Equipamento = data.get('Maq_Equipamento')
     nomeCategoria = data.get('nomeCategoria','CAMISA ML')
     tempoPadrao = data.get('tempoPadrao','-')
+    nomeCategoriaOperacao = data.get('nomeCategoriaOperacao',None)
 
-    consulta = Opercao.InserirOperacao(nomeOperacao, nomeFase, Maq_Equipamento, nomeCategoria, tempoPadrao )
+    #consulta = Opercao.InserirOperacao(nomeOperacao, nomeFase, Maq_Equipamento, nomeCategoria, tempoPadrao )
+    fase = faseClass.Fase(None,nomeFase)
+    codFase = fase.BuscarCodigoFase()
+
+    if nomeCategoriaOperacao == None:
+        categoriaOperacao = '-'
+    else:     
+        categoria = categoriaOperacaoClass.CategoriaOperacao(None,nomeCategoriaOperacao)
+        categoriaOperacao= categoria.BuscarCodigoCategoria()
+
+    operacao = operacaoClass.Operacao(nomeOperacao,codFase, Maq_Equipamento, categoriaOperacao, tempoPadrao) 
+    consulta = operacao.InserirOperacao()
+
     # Obtém os nomes das colunas
     column_names = consulta.columns
     # Monta o dicionário com os cabeçalhos das colunas e os valores correspondentes

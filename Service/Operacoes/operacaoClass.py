@@ -48,7 +48,7 @@ class Operacao():
         self.codOperacao = self.ObterUltimaOperacao()
 
         
-        cursor.execute(inserirTempoPadrao,(ultimaOperacao,self.tempoOperacao))
+        cursor.execute(inserirTempoPadrao,(self.codOperacao,self.tempoOperacao))
         conn.commit()
 
         cursor.close()
