@@ -18,7 +18,8 @@ class Fase():
 
         conn = ConexaoPostgreMPL.conexaoJohn()
         cursor = conn.cursor()
-        cursor.execute(consulta,(self.nomeFase))
+        print(self.nomeFase)
+        cursor.execute(consulta,(self.nomeFase,))
         consulta = cursor.fetchone()
         self.codFase = consulta[0]
  
