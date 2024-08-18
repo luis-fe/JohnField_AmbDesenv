@@ -67,7 +67,7 @@ class Operacao():
         consulta = pd.read_sql(sql,conn)
         consulta['Pcs/Hora'] = (60*60)/consulta['TempoPadrao(s)']
         consulta['Pcs/Hora'] = consulta['Pcs/Hora'].astype(int)
-        consulta = consulta.fillna('-',inplace=True)
+        consulta.fillna('-', inplace=True)
 
         return consulta
     
