@@ -20,8 +20,9 @@ def token_required(f):
 @token_required
 def get_BuscarOperacoes():
     try:
-        print('Minha Api 1')
-        busca = Opercao.Buscar_Operacoes()
+
+        operacao = operacaoClass.Operacao()
+        busca = operacao.BuscarOperacoes()
 
         # Verifica se 'busca' é um DataFrame
         if not isinstance(busca, pd.DataFrame):

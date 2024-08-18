@@ -22,7 +22,7 @@ def ColetaProducao(codOperador, nomeOperacao, qtdPecas):
         return pd.DataFrame([{'Stauts':False, 'Mensagem':'Operador nao encontrado'}])
 
     else:
-
+        
         operacoes =  Opercao.Buscar_Operacoes()
         operacoes = operacoes[operacoes['nomeOperacao']==nomeOperacao].reset_index()
 
