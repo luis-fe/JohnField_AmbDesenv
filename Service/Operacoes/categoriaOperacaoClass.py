@@ -19,7 +19,7 @@ from
 
         conn = ConexaoPostgreMPL.conexaoJohn()
         cursor = conn.cursor()
-        cursor.execute(consulta,(self.nomeCategoriaOperacao))
+        cursor.execute(consulta,(self.nomeCategoriaOperacao,))
         consulta = cursor.fetchone()
         self.codCategoriaOperacao = consulta[0]
  
