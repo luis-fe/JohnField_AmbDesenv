@@ -17,7 +17,7 @@ from
             "nomecategoria" = %s
         """ 
 
-        conn = ConexaoPostgreMPL.conexaoJohn
+        conn = ConexaoPostgreMPL.conexaoJohn()
         cursor = conn.cursor()
         cursor.execute(consulta,(self.nomeCategoriaOperacao))
         consulta = cursor.fetchone()
