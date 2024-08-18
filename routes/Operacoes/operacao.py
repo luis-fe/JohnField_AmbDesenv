@@ -75,8 +75,14 @@ def AtualizarOperacao():
     fase = faseClass.Fase(None,nomeFase)
     codFase = fase.BuscarCodigoFase()
 
-    categoria = categoriaOperacaoClass.CategoriaOperacao(None,nomeCategoriaOperacao)
-    categoriaOperacao= categoria.BuscarCodigoCategoria()
+    if nomeCategoriaOperacao == None:
+        categoriaOperacao = '-'
+    else:     
+        categoria = categoriaOperacaoClass.CategoriaOperacao(None,nomeCategoriaOperacao)
+        categoriaOperacao= categoria.BuscarCodigoCategoria()
+
+
+
     operacao = operacaoClass.Operacao(nomeOperacao, codFase,
                   Maq_Equipamento, categoriaOperacao,tempoPadrao,codOperacao )
     consulta = operacao.UpdateOperacao()

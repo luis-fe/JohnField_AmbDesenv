@@ -78,10 +78,10 @@ class Operacao():
     inner join "Easy"."TemposOperacao" to2 on to2."codOperacao" =o."codOperacao" 
     where o."nomeOperacao" = %s
     """
+        consulta = pd.read_sql(consulta,conn,params=(self.nomeOperacao,))
         consulta.rename(
         columns={'categoriaoperacao': 'CategoriaOperacao'},
         inplace=True)
-        consulta = pd.read_sql(consulta,conn,params=(self.nomeOperacao,))
 
         return consulta
     
