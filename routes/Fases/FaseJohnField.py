@@ -1,7 +1,8 @@
 from flask import Blueprint, jsonify, request
 from functools import wraps
-from Service import FaseJohnField
+from Service import FaseJohnField, faseClass
 import pandas as pd
+
 fase_routesJohn = Blueprint('FaseJohn', __name__) # Esse é o nome atribuido para o conjunto de rotas envolvendo usuario
 
 def token_required(f):
