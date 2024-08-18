@@ -7,7 +7,7 @@ def Buscar_Operacoes():
     conn = ConexaoPostgreMPL.conexaoEngine()
 
     sql = """
-	            select  c.*, f."nomeFase",c2."nomecategoria" as "nomeCategoria"  ,to2."tempoPadrao" as "TempoPadrao(s)", f."nomeFase", "Maq/Equipamento"  from "Easy"."Operacao" c
+	            select  c.*,c2."nomecategoria" as "nomeCategoria"  ,to2."tempoPadrao" as "TempoPadrao(s)", f."nomeFase", "Maq/Equipamento"  from "Easy"."Operacao" c
         inner join "Easy"."Fase" f on f."codFase" = c."codFase"
         inner join "Easy"."TemposOperacao" to2 on to2."codOperacao" = c."codOperacao" 
         left join "Easy"."categoriaoperacao" c2 on c2.id_categoria::varchar = c."categoriaoperacao"  
