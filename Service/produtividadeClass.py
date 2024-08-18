@@ -42,7 +42,7 @@ class Produtividade():
         consulta = pd.read_sql(sql,conn,params=(self.dataInicio, self.dataFinal))
         consulta2 = pd.read_sql(sql2,conn,params=(self.dataInicio, self.dataFinal))
         consulta2['QtdOperadores'] = 1
-        consulta2 = consulta.groupby(['nomecategoria']).agg(
+        consulta2 = consulta2.groupby(['nomecategoria']).agg(
         quantidadeOP=('QtdOperadores'),quantidadePc=('sum')).reset_index()
         consulta =pd.merge(consulta, consulta2, on = 'nomecategoria', how='left')
 
