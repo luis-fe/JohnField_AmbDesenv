@@ -54,7 +54,7 @@ class Paradas():
                 with conn.cursor() as curr:
                     curr.execute(update,(dataInicioNovo, dataFinalNovo, horaInicioNovo, horaFinaNovo, 
                                           self.motivo , self.dataInicio
-                                        , self.dataFinal, self.horaInicio, self.horaFinal, self.codOperador))
+                                        , self.dataFinal, self.horaInicio, self.horaFinal, int(self.codOperador)))
                     conn.commit()
 
 
