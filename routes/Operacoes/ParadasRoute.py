@@ -97,7 +97,7 @@ def PUT_EditarRegistroParada():
 
 
 
-@Paradas_rotuesJohn.route('/api/JonhField/ExcluirRegistroAusencia', methods=['POST'])
+@Paradas_rotuesJohn.route('/api/JonhField/ExcluirRegistroAusencia', methods=['DELETE'])
 @token_required
 def del_ExcluirRegistroAusencia():
     data = request.get_json()
