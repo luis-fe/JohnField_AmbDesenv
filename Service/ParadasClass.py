@@ -48,7 +48,7 @@ class Paradas():
             update = """UPDATE "Easy"."ApontaParadas" SET "dataInicio" = %s , "dataFinal"= %s, "horaInicio"= %s, 
         "horaFinal"= %s, "motivo"= %s 
         where "dataInicio" = %s
-         and "horaInicio"= %s and ""codOperador"::int= %s """
+         and "horaInicio"= %s and "codOperador"::int= %s """
 
             with ConexaoPostgreMPL.conexaoJohn() as conn:
                 with conn.cursor() as curr:
