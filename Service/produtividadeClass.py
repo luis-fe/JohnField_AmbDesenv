@@ -6,6 +6,8 @@ class Produtividade():
     def __init__(self, dataInicio = None, dataFinal =None):
         self.dataInicio = dataInicio
         self.dataFinal = dataFinal
+        self.codOperador = None 
+        self.codregistro= None
 
     def ProdutividadePorCategoriaOperacao(self):
         sql = """
@@ -56,7 +58,7 @@ class Produtividade():
         return consulta
     
 
-    def CalcularTempo(self, InicioOperacao, FimOperacao, tempoInicio, tempoFim):
+    def CalcularTempo(self, InicioOperacao, FimOperacao, tempoInicio, tempoFim, codOperador, codRegistro):
     # Converte as datas de início e fim em objetos datetime se forem strings
         if isinstance(InicioOperacao, str):
             InicioOperacao = datetime.strptime(InicioOperacao, "%Y-%m-%d")
@@ -78,6 +80,9 @@ class Produtividade():
         tem_domingo = any(date.weekday() == 6 for date in datas)
 
         delta_dias = (FimOperacao - InicioOperacao).days
+        self.codOperador = codOperador
+        self.codregistro = codRegistro
+        self.AtualizarValores(delta_dias)
 
         if InicioOperacao == FimOperacao:
             # Calcular a diferença entre os horários
@@ -149,7 +154,8 @@ class Produtividade():
         # Adicionar uma coluna calculada usando a função CalcularTempo
             produtividade['TempoRealizado(Min)'] = produtividade.apply(
             lambda row: self.CalcularTempo(
-            row['DiaInicial'], row['Data'], row['Hr Inicio'], row['Hr Final']
+            row['DiaInicial'], row['Data'], row['Hr Inicio'], row['Hr Final'],row['codOperador'],
+            row['Codigo Registro']
         ), axis=1)
 
 
@@ -191,10 +197,16 @@ class Produtividade():
                 '1-Detalhamento': consulta2.to_dict(orient='records')}
 
             return pd.DataFrame([dados])
-
-
-
-
+        
+    def AtualizarValores(self,dia_entreData):
+    
+        insert = """update RegistroProducao set "dia_entre_datas" = %s
+         where "codOperador" = %s, "Codigo Registro" = %s """
+                    
+        with ConexaoPostgreMPL.conexaoJohn() as conn:
+            with conn.cursor() as curr:
+                curr.execute(insert,(dia_entreData, self.codOperador, self.codregistro))
+                conn.commit()
 
 
 
