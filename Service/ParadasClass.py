@@ -67,7 +67,7 @@ class Paradas():
          and "horaInicio"= %s and "codOperador"= %s"""
         with ConexaoPostgreMPL.conexaoJohn() as conn:
             with conn.cursor() as curr:
-                curr.excute(delete,(self.dataInicio,self.horaInicio, self.codOperador))
+                curr.execute(delete,(self.dataInicio,self.horaInicio, self.codOperador))
 
         return pd.DataFrame([{'Status': True, 'Mensagem': 'Apontamento excluido com sucesso!'}])
 
