@@ -47,14 +47,13 @@ class Paradas():
         else:
             update = """UPDATE "Easy"."ApontaParadas" SET "dataInicio" = %s , "dataFinal"= %s, "horaInicio"= %s, 
         "horaFinal"= %s, "motivo"= %s 
-        where "dataInicio" = %s  and "dataFinal"= %s
-         and "horaInicio"= %s and "horaFinal"= %s and "codOperador"= %s"""
+        where "dataInicio" = %s
+         and "horaInicio"= %s and ""codOperador"::int= %s """
 
             with ConexaoPostgreMPL.conexaoJohn() as conn:
                 with conn.cursor() as curr:
                     curr.execute(update,(dataInicioNovo, dataFinalNovo, horaInicioNovo, horaFinaNovo, 
-                                          self.motivo , self.dataInicio
-                                        , self.dataFinal, self.horaInicio, self.horaFinal, int(self.codOperador)))
+                                          self.motivo , self.dataInicio,  self.horaInicio,  int(self.codOperador)))
                     conn.commit()
 
 
