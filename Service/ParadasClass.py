@@ -64,7 +64,7 @@ class Paradas():
     def ExcluirParada(self):
 
         delete = """DELETE FROM "Easy"."ApontaParadas" where "dataInicio" = %s
-         and "horaInicio"= %s and "codOperador"= %s"""
+         and "horaInicio"= %s and "codOperador"::int= %s"""
         with ConexaoPostgreMPL.conexaoJohn() as conn:
             with conn.cursor() as curr:
                 curr.execute(delete,(self.dataInicio,self.horaInicio, int(self.codOperador)))
