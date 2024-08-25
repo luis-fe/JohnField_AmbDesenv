@@ -1,0 +1,106 @@
+from math import e
+import ConexaoPostgreMPL
+import pandas as pd
+import re
+from Service import OperadorClass
+
+class AdcionalHr():
+    def __init__(self, dataInicio, dataFinal, horaInicio = None, horaFinal = None, codOperador = None, motivo = '-'):
+        self.dataInicio = dataInicio
+        self.dataFinal = dataFinal
+        self.horaInicio = horaInicio
+        self.horaFinal= horaFinal
+        self.codOperador= codOperador
+
+        if self.codOperador != None:
+            operadorObjeto = OperadorClass.Operador(self.codOperador)
+            self.nomeOperador = operadorObjeto.buscarNomeOperador()
+        else:
+            self.nomeOperador = None
+
+        self.motivo= motivo
+
+    def InserirAdicional(self):
+
+        validacao = self.ValidarEnvioDataHorario()
+
+        if validacao['Status'][0] == False:
+            return validacao
+        else:
+            insert = """INSERT INTO "Easy"."AdicionaisHoras"  ("dataInicio", "dataFinal", "horaInicio", 
+            "horaFinal", "codOperador", "nomeOperador", "motivo" ) values (%s, %s, %s,%s,%s,%s,%s )"""
+
+            with ConexaoPostgreMPL.conexaoJohn() as conn:
+                with conn.cursor() as curr:
+                    curr.execute(insert,(self.dataInicio, self.dataFinal, self.horaInicio, self.horaFinal, self.codOperador, self.nomeOperador, self.motivo))
+                    conn.commit()
+
+            return pd.DataFrame([{'Status':True, 'Mensagem':'Inserido com sucesso!'}])
+
+
+    def UpdateAdicional(self, dataInicioNovo, dataFinalNovo, horaInicioNovo, horaFinaNovo ):
+
+        validacao = self.ValidarEnvioDataHorario()
+
+        if validacao['Status'][0] == False:
+            return validacao
+        else:
+            update = """UPDATE "Easy"."AdicionaisHoras" SET "dataInicio" = %s , "dataFinal"= %s, "horaInicio"= %s, 
+        "horaFinal"= %s, "motivo"= %s 
+        where "dataInicio" = %s
+         and "horaInicio"= %s and "codOperador"::int= %s """
+
+            with ConexaoPostgreMPL.conexaoJohn() as conn:
+                with conn.cursor() as curr:
+                    curr.execute(update,(dataInicioNovo, dataFinalNovo, horaInicioNovo, horaFinaNovo, 
+                                          self.motivo , self.dataInicio,  self.horaInicio,  int(self.codOperador)))
+                    conn.commit()
+
+
+
+            return pd.DataFrame([{'Status':True, 'Mensagem':'Alterado com sucesso!'}])
+
+
+    def ExcluirAdicional(self):
+
+        delete = """DELETE FROM "Easy"."AdicionaisHoras" where "dataInicio" = %s
+         and "horaInicio"= %s and "codOperador"::int= %s"""
+        with ConexaoPostgreMPL.conexaoJohn() as conn:
+            with conn.cursor() as curr:
+                curr.execute(delete,(self.dataInicio,self.horaInicio, int(self.codOperador)))
+
+        return pd.DataFrame([{'Status': True, 'Mensagem': 'Apontamento excluido com sucesso!'}])
+
+    def ConsultarAdicionalPerido(self):
+        conn = ConexaoPostgreMPL.conexaoEngine()
+        consulta ="""
+                    select
+                        *
+                    from"Easy"."AdicionaisHoras" ap where "dataInicio"::Date >= %s and "dataFinal"::date <= %s """
+        consulta = pd.read_sql(consulta,conn,params=(self.dataInicio, self.dataFinal))
+        return consulta
+
+    def ValidarEnvioDataHorario(self):
+        # Expressão regular para verificar o formato hh:mm
+        padrao_horario = r'^\d{2}:\d{2}$'
+
+        # Aqui verificamos se o horario final esta none que aplicaca-se em alguns casos especifico
+        if self.horaFinal == None:
+            horaFinal = self.horaInicio
+        else:
+            horaFinal = self.horaFinal
+
+        if re.match(padrao_horario, self.horaInicio):
+            situacao1 = True
+        else:
+            situacao1 = False
+
+        if re.match(padrao_horario, horaFinal):
+            situacao2 = True
+        else:
+            situacao2 = False
+
+        if situacao1 == False and situacao2 == False:
+            return pd.DataFrame([{'Status':False,"Mensagem":'horario nao esta no formato hh:mm '}])
+        else:
+            return pd.DataFrame([{'Status':True,"Mensagem":'horario  esta no formato hh:mm '}])

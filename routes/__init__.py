@@ -23,6 +23,7 @@ from .Ops.DetalhamentoOP import DetalhamentoOPJohn
 from .Operacoes.categoriaOperacao import CategoriaOperacao_routesJohn
 from .Dashboard.Produtividade import Produtividade_routesJohn
 from .Operacoes.ParadasRoute import Paradas_rotuesJohn
+from .Operacoes.AdicionalHoraRoute import Adicional_routes
 
 # Registre as rotas nos blueprints
 routes_blueprint.register_blueprint(usuarios_routesJohn)
@@ -44,3 +45,4 @@ routes_blueprint.register_blueprint(DetalhamentoOPJohn)
 routes_blueprint.register_blueprint(CategoriaOperacao_routesJohn)
 routes_blueprint.register_blueprint(Produtividade_routesJohn)
 routes_blueprint.register_blueprint(Paradas_rotuesJohn)
+routes_blueprint.register_blueprint(Adicional_routes)
