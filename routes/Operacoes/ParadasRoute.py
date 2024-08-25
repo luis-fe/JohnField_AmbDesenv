@@ -65,3 +65,33 @@ def salvar_InserirRegistroParada():
             consulta_dict[column_name] = row[column_name]
         consulta_data.append(consulta_dict)
     return jsonify(consulta_data)
+
+
+@Paradas_rotuesJohn.route('/api/JonhField/EditarRegistroParada', methods=['PUT'])
+@token_required
+def PUT_EditarRegistroParada():
+    data = request.get_json()
+    dataInicio = data.get('dataInicio', '-')
+    dataFinal = data.get('dataFinal',None)
+    horaInicio = data.get('horaInicio')
+    horaFinal = data.get('horaFinal',None)
+    codOperador = data.get('codOperador')
+    motivo = data.get('motivo')
+
+    dataInicioNovo = data.get('dataInicioNovo', '-')
+    dataFinalNovo = data.get('dataFinalNovo', '-')
+    horaInicioNovo = data.get('horaInicioNovo', '-')
+    horaFinaNovo = data.get('horaFinaNovo', '-')
+
+    parada = ParadasClass.Paradas(dataInicio, dataFinal, horaInicio, horaFinal, codOperador, motivo)
+    consulta = parada.UpdateParada(dataInicioNovo, dataFinalNovo, horaInicioNovo, horaFinaNovo)
+    # Obtém os nomes das colunas
+    column_names = consulta.columns
+    # Monta o dicionário com os cabeçalhos das colunas e os valores correspondentes
+    consulta_data = []
+    for index, row in consulta.iterrows():
+        consulta_dict = {}
+        for column_name in column_names:
+            consulta_dict[column_name] = row[column_name]
+        consulta_data.append(consulta_dict)
+    return jsonify(consulta_data)
