@@ -31,9 +31,7 @@ class Paradas():
 
             with ConexaoPostgreMPL.conexaoJohn() as conn:
                 with conn.cursor() as curr:
-                    curr.execute(insert,(self.dataInicio, self.dataFinal, 
-                                         self.horaInicio, self.horaFinal, 
-                                         self.codOperador, self.nomeOperador, self.motivo))
+                    curr.execute(insert,(self.dataInicio, self.dataFinal, self.horaInicio, self.horaFinal, self.codOperador, self.nomeOperador, self.motivo))
                     conn.commit()
 
             return pd.DataFrame([{'Status':True, 'Mensagem':'Inserido com sucesso!'}])
@@ -48,8 +46,8 @@ class Paradas():
         else:
             update = """UPDATE Easy"."ApontaParadas" SET "dataInicio" = %s , "dataFinal"= %s, "horaInicio"= %s, 
         "horaFinal"= %s, "codOperador"= %s, "nomeOperador"= %s, "motivo"= %s 
-        where "dataInicio" = %s
-         and "horaInicio"= %s  and "codOperador"= %s"""
+        where "dataInicio" = %s  and "dataFinal"= %s
+         and "horaInicio"= %s and "horaFinal"= %s and "codOperador"= %s"""
 
             with ConexaoPostgreMPL.conexaoJohn() as conn:
                 with conn.cursor() as curr:

@@ -22,23 +22,22 @@ def token_required(f):
 def get_ConsultarRegistroParadas():
     dataInicio = request.args.get('dataInicio')
     dataFinal = request.args.get('dataFinal')
-    try:
-        paradas = ParadasClass.Paradas(dataInicio, dataFinal)
-        busca = paradas.ConsultarParadasPerido()
 
-        # Verifica se 'busca' é um DataFrame
-        if not isinstance(busca, pd.DataFrame):
-            return jsonify({'error': 'Unexpected data format'}), 500
+    paradas = ParadasClass.Paradas(dataInicio, dataFinal)
+    busca = paradas.ConsultarParadasPerido()
 
-        # Obtém os nomes das colunas
-        column_names = busca.columns.tolist()
+    # Verifica se 'busca' é um DataFrame
+    if not isinstance(busca, pd.DataFrame):
+        return jsonify({'error': 'Unexpected data format'}), 500
 
-        # Monta o dicionário com os cabeçalhos das colunas e os valores correspondentes
-        consulta_data = busca.to_dict(orient='records')
+    # Obtém os nomes das colunas
+    column_names = busca.columns.tolist()
 
-        return jsonify(consulta_data)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    # Monta o dicionário com os cabeçalhos das colunas e os valores correspondentes
+    consulta_data = busca.to_dict(orient='records')
+
+    return jsonify(consulta_data)
+
 
 
 
