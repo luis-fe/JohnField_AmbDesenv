@@ -46,14 +46,15 @@ class Paradas():
             return validacao
         else:
             update = """UPDATE Easy"."ApontaParadas" SET "dataInicio" = %s , "dataFinal"= %s, "horaInicio"= %s, 
-        "horaFinal"= %s, "codOperador"= %s, "nomeOperador"= %s, "motivo"= %s 
+        "horaFinal"= %s, "motivo"= %s 
         where "dataInicio" = %s  and "dataFinal"= %s
          and "horaInicio"= %s and "horaFinal"= %s and "codOperador"= %s"""
 
             with ConexaoPostgreMPL.conexaoJohn() as conn:
                 with conn.cursor() as curr:
-                    curr.execute(update,(self.dataInicio, self.dataFinal, self.horaInicio, self.horaFinal, self.codOperador, self.nomeOperador, self.motivo, dataInicioNovo
-                                        , dataFinalNovo, horaInicioNovo, horaFinaNovo))
+                    curr.execute(update,(dataInicioNovo, dataFinalNovo, horaInicioNovo, horaFinaNovo, 
+                                          self.motivo , self.dataInicio
+                                        , self.dataFinal, self.horaInicio, self.horaFinal, self.codOperador))
                     conn.commit()
 
 
