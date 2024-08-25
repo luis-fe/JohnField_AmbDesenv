@@ -200,7 +200,7 @@ class Produtividade():
         
     def AtualizarValores(self,dia_entreData):
     
-        insert = """update "RegistroProducao" set "dia_entre_datas" = %s
+        insert = """update "Easy"."RegistroProducao" set "dia_entre_datas" = %s
          where "codOperador" = %s and "Codigo Registro" = %s """
                     
         with ConexaoPostgreMPL.conexaoJohn() as conn:
