@@ -1,3 +1,4 @@
+from math import e
 import ConexaoPostgreMPL
 import pandas as pd
 import re
@@ -83,12 +84,18 @@ class Paradas():
         # Expressão regular para verificar o formato hh:mm
         padrao_horario = r'^\d{2}:\d{2}$'
 
+        # Aqui verificamos se o horario final esta none que aplicaca-se em alguns casos especifico
+        if self.horaFinal == None:
+            horaFinal = self.horaInicio
+        else:
+            horaFinal = self.horaFinal
+
         if re.match(padrao_horario, self.horaInicio):
             situacao1 = True
         else:
             situacao1 = False
 
-        if re.match(padrao_horario, self.horaFinal):
+        if re.match(padrao_horario, horaFinal):
             situacao2 = True
         else:
             situacao2 = False
