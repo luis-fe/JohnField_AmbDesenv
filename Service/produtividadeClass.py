@@ -80,9 +80,9 @@ class Produtividade():
         tem_domingo = any(date.weekday() == 6 for date in datas)
 
         delta_dias = (FimOperacao - InicioOperacao).days
-        self.codOperador = codOperador
-        self.codregistro = codRegistro
-        self.AtualizarValores(delta_dias)
+        #self.codOperador = codOperador
+        #self.codregistro = codRegistro
+        #self.AtualizarValores(delta_dias)
 
         if InicioOperacao == FimOperacao:
             # Calcular a diferença entre os horários
