@@ -45,7 +45,7 @@ class Paradas():
         if validacao['Status'][0] == False:
             return validacao
         else:
-            update = """UPDATE Easy"."ApontaParadas" SET "dataInicio" = %s , "dataFinal"= %s, "horaInicio"= %s, 
+            update = """UPDATE "Easy"."ApontaParadas" SET "dataInicio" = %s , "dataFinal"= %s, "horaInicio"= %s, 
         "horaFinal"= %s, "motivo"= %s 
         where "dataInicio" = %s  and "dataFinal"= %s
          and "horaInicio"= %s and "horaFinal"= %s and "codOperador"= %s"""
