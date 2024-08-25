@@ -63,11 +63,11 @@ class Paradas():
 
     def ExcluirParada(self):
 
-        delete = """DELETE FROM Easy"."ApontaParadas" where "dataInicio" = %s
+        delete = """DELETE FROM "Easy"."ApontaParadas" where "dataInicio" = %s
          and "horaInicio"= %s and "codOperador"= %s"""
         with ConexaoPostgreMPL.conexaoJohn() as conn:
             with conn.cursor() as curr:
-                curr.execute(delete,(self.dataInicio,self.horaInicio, self.codOperador))
+                curr.execute(delete,(self.dataInicio,self.horaInicio, int(self.codOperador)))
 
         return pd.DataFrame([{'Status': True, 'Mensagem': 'Apontamento excluido com sucesso!'}])
 
